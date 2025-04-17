@@ -1,0 +1,319 @@
+// app/(tabs)/index.tsx - Home Screen
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { Stack, useRouter } from 'expo-router';
+import { fetchMarketTickers } from '../../api/marketApi';
+import { StockCard } from '../../components/StockCard';
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['marketTickers', 1, 'STOCKS'],
+    queryFn: () => fetchMarketTickers(1, 'STOCKS'),
+  });
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#0284c7" />
+        <Text className="mt-4 text-gray-600">Loading market data...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50 p-4">
+        <Text className="text-red-500 text-lg font-medium">An error occurred</Text>
+        <Text className="text-gray-600 mt-2">
+          Could not fetch market data. Please try again later.
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1 bg-gray-50">
+      <Stack.Screen
+        options={{
+          headerTitle: 'Market Overview',
+          headerLargeTitle: true,
+          headerSearchBarOptions: {
+            placeholder: 'Search stocks...',
+            onChangeText: (event) => {
+              // Handle search
+              console.log(event.nativeEvent.text);
+            },
+          },
+        }}
+      />
+      
+      <View className="px-4 py-2">
+        <Text className="text-sm text-gray-500">
+          Showing {data?.body.length} of {data?.meta.totalrecords} stocks
+        </Text>
+      </View>
+
+      <FlatList
+        data={data?.body}
+        keyExtractor={(item) => item.symbol}
+        renderItem={({ item }) => (
+          <TouchableOpacity 
+            onPress={() => router.push(`/stock/${item.symbol}`)}
+            className="mb-2"
+          >
+            <StockCard stockData={item} />
+          </TouchableOpacity>
+        )}
+        contentContainerClassName="px-4 pb-8"
+      />
+    </View>
+  );
+}
+
+// api/marketApi.ts
+import axios from 'axios';
+
+const API_KEY = '9288c8ca29msh202e3f882223132p1ed9ebjsna02b8d7935f6';
+const API_HOST = 'yahoo-finance15.p.rapidapi.com';
+
+interface MarketTickerResponse {
+  meta: {
+    version: string;
+    status: number;
+    copywrite: string;
+    totalrecords: number;
+    headers: {
+      symbol: string;
+      name: string;
+      lastsale: string;
+      netchange: string;
+      pctchange: string;
+      marketCap: string;
+    };
+  };
+  body: StockTicker[];
+}
+
+export interface StockTicker {
+  symbol: string;
+  name: string;
+  lastsale: string;
+  netchange: string;
+  pctchange: string;
+  marketCap: string;
+}
+
+export async function fetchMarketTickers(page: number = 1, type: string = 'STOCKS'): Promise<MarketTickerResponse> {
+  const options = {
+    method: 'GET',
+    url: 'https://yahoo-finance15.p.rapidapi.com/api/v2/markets/tickers',
+    params: {
+      page: page.toString(),
+      type
+    },
+    headers: {
+      'x-rapidapi-key': API_KEY,
+      'x-rapidapi-host': API_HOST
+    }
+  };
+
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching market tickers:', error);
+    throw error;
+  }
+}
+
+// components/StockCard.tsx
+import React from 'react';
+import { View, Text } from 'react-native';
+import { StockTicker } from '../api/marketApi';
+
+interface StockCardProps {
+  stockData: StockTicker;
+}
+
+export function StockCard({ stockData }: StockCardProps) {
+  const isPositive = !stockData.netchange.startsWith('-');
+  
+  return (
+    <View className="bg-white rounded-lg p-4 shadow-sm">
+      <View className="flex-row justify-between items-center">
+        <View className="flex-1">
+          <Text className="text-lg font-bold">{stockData.symbol}</Text>
+          <Text className="text-sm text-gray-500" numberOfLines={1}>{stockData.name}</Text>
+        </View>
+        
+        <View className="items-end">
+          <Text className="text-lg font-semibold">{stockData.lastsale}</Text>
+          <View className="flex-row items-center">
+            <Text 
+              className={`text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+            >
+              {stockData.netchange} ({stockData.pctchange})
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// app/(tabs)/_layout.tsx
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+export default function TabLayout() {
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: '#0284c7',
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          tabBarLabel: 'Market',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="watchlist"
+        options={{
+          tabBarLabel: 'Watchlist',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="star" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="news"
+        options={{
+          tabBarLabel: 'News',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="newspaper" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          tabBarLabel: 'Search',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
+
+// app/_layout.tsx
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Stack } from 'expo-router';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+const queryClient = new QueryClient();
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen 
+            name="stock/[symbol]" 
+            options={{ 
+              headerTitle: 'Stock Details',
+              presentation: 'card'
+            }} 
+          />
+        </Stack>
+      </SafeAreaProvider>
+    </QueryClientProvider>
+  );
+}
+
+// app/stock/[symbol].tsx
+import React from 'react';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+
+export default function StockDetailScreen() {
+  const { symbol } = useLocalSearchParams<{ symbol: string }>();
+  
+  // This would be replaced with actual API call to get stock details
+  const { isLoading } = useQuery({
+    queryKey: ['stockDetails', symbol],
+    queryFn: () => Promise.resolve({}), // Replace with actual API call
+    enabled: !!symbol,
+  });
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#0284c7" />
+        <Text className="mt-4 text-gray-600">Loading {symbol} data...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-gray-50 p-4">
+      <View className="bg-white rounded-lg p-4 shadow-sm mb-4">
+        <Text className="text-2xl font-bold">{symbol}</Text>
+        <Text className="text-gray-500">Placeholder for company name</Text>
+        
+        <View className="py-4">
+          <Text className="text-3xl font-bold">$XXX.XX</Text>
+          <View className="flex-row items-center mt-1">
+            <Text className="text-green-600 text-lg">+XX.XX (+X.XX%)</Text>
+          </View>
+        </View>
+      </View>
+      
+      <View className="bg-white rounded-lg p-4 shadow-sm mb-4">
+        <Text className="text-lg font-semibold mb-2">Chart Placeholder</Text>
+        <View className="h-64 bg-gray-100 rounded-lg" />
+      </View>
+
+      <View className="bg-white rounded-lg p-4 shadow-sm mb-4">
+        <Text className="text-lg font-semibold mb-2">Key Statistics</Text>
+        <View className="flex-row justify-between py-2 border-b border-gray-100">
+          <Text className="text-gray-500">Market Cap</Text>
+          <Text className="font-medium">$XXX.XXB</Text>
+        </View>
+        <View className="flex-row justify-between py-2 border-b border-gray-100">
+          <Text className="text-gray-500">P/E Ratio</Text>
+          <Text className="font-medium">XX.XX</Text>
+        </View>
+        <View className="flex-row justify-between py-2 border-b border-gray-100">
+          <Text className="text-gray-500">52-Week High</Text>
+          <Text className="font-medium">$XXX.XX</Text>
+        </View>
+        <View className="flex-row justify-between py-2">
+          <Text className="text-gray-500">52-Week Low</Text>
+          <Text className="font-medium">$XXX.XX</Text>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}

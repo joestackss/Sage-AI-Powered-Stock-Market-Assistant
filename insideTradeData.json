@@ -1,0 +1,65 @@
+{
+  "body": [
+    {
+      "symbol": "GILD",
+      "symbolName": "Gilead Sciences Inc",
+      "fullName": "Andrew Dickinson",
+      "shortJobTitle": "CFO",
+      "transactionType": "Sell",
+      "amount": "2,500",
+      "reportedPrice": "106.40000",
+      "usdValue": "266,000",
+      "eodHolding": "168,174",
+      "transactionDate": "04/15/25",
+      "symbolCode": "STK",
+      "hasOptions": "Yes",
+      "symbolType": 1
+    },
+    {
+      "symbol": "DLTR",
+      "symbolName": "Dollar Tree Inc",
+      "fullName": "Stewart Glendinning",
+      "shortJobTitle": "CFO",
+      "transactionType": "Buy",
+      "amount": "17,000",
+      "reportedPrice": "72.75000",
+      "usdValue": "1,236,749",
+      "eodHolding": "49,353",
+      "transactionDate": "04/15/25",
+      "symbolCode": "STK",
+      "hasOptions": "Yes",
+      "symbolType": 1
+    },
+    {
+      "symbol": "U",
+      "symbolName": "Unity Software Inc",
+      "fullName": "Anirma Gupta",
+      "shortJobTitle": "CLO",
+      "transactionType": "Sell",
+      "amount": "551",
+      "reportedPrice": "18.17000",
+      "usdValue": "10,011",
+      "eodHolding": "691,909",
+      "transactionDate": "04/15/25",
+      "symbolCode": "STK",
+      "hasOptions": "Yes",
+      "symbolType": 1
+    },
+
+    {
+      "symbol": "GRX",
+      "symbolName": "The Gabelli Healthcare & Wellness Trust",
+      "fullName": "American Shareholder",
+      "shortJobTitle": "N/A",
+      "transactionType": "Buy",
+      "amount": "1,600",
+      "reportedPrice": "9.47000",
+      "usdValue": "15,152",
+      "eodHolding": "1,972,344",
+      "transactionDate": "04/14/25",
+      "symbolCode": "UIT",
+      "hasOptions": "No",
+      "symbolType": 11
+    }
+  ]
+}

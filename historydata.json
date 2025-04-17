@@ -1,0 +1,62 @@
+{
+  "body": {
+    "1744833000": {
+      "close": 238.72,
+      "date": "16-04-2025",
+      "date_utc": 1744833000,
+      "high": 238.85,
+      "low": 237.52,
+      "open": 237.78,
+      "volume": 159724
+    },
+    "1744833300": {
+      "close": 238.61,
+      "date": "16-04-2025",
+      "date_utc": 1744833300,
+      "high": 239.19,
+      "low": 238.06,
+      "open": 238.63,
+      "volume": 367088
+    },
+    "1744833600": {
+      "close": 238.57,
+      "date": "16-04-2025",
+      "date_utc": 1744833600,
+      "high": 238.57,
+      "low": 238.57,
+      "open": 238.57,
+      "volume": 0
+    }
+  },
+  "meta": {
+    "chartPreviousClose": 248.35,
+    "copywrite": "https://apicalls.io",
+    "currency": "USD",
+    "dataGranularity": "5m",
+    "exchangeName": "NYQ",
+    "exchangeTimezoneName": "America/New_York",
+    "fiftyTwoWeekHigh": 266.45,
+    "fiftyTwoWeekLow": 162.62,
+    "firstTradeDate": -252322200,
+    "fullExchangeName": "NYSE",
+    "gmtoffset": -14400,
+    "hasPrePostMarketData": true,
+    "instrumentType": "EQUITY",
+    "longName": "International Business Machines Corporation",
+    "previousClose": 240.7,
+    "priceHint": 2,
+    "processedTime": "2025-04-17T07:43:39.231393Z",
+    "range": "",
+    "regularMarketDayHigh": 243.3,
+    "regularMarketDayLow": 235.89,
+    "regularMarketPrice": 238.57,
+    "regularMarketTime": 1744833602,
+    "regularMarketVolume": 4869555,
+    "scale": 3,
+    "shortName": "International Business Machines",
+    "status": 200,
+    "symbol": "IBM",
+    "timezone": "EDT",
+    "version": "v1.0"
+  }
+}
