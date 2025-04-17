@@ -9,6 +9,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const queryClient = new QueryClient();
 
@@ -46,19 +47,21 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="stock/[symbol]"
-            options={{
-              headerTitle: "Stock Details",
-              presentation: "card",
-            }}
-          />
-        </Stack>
-      </SafeAreaProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="stock/[symbol]"
+              options={{
+                headerTitle: "Stock Details",
+                presentation: "card",
+              }}
+            />
+          </Stack>
+        </SafeAreaProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

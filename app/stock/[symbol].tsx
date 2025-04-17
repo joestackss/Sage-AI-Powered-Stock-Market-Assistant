@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,17 +8,14 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
-  Image,
+  StatusBar,
 } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { LineChart, CandlestickChart } from "react-native-wagmi-charts";
-import {
-  fetchStockHistory,
-  fetchStockModule,
-  fetchInsiderTrades,
-} from "../api/marketApi";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { fetchStockHistory, fetchStockModule } from "../api/marketApi";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -33,19 +30,17 @@ const timeFrames = [
 ];
 
 // Tabs for the detail view
-const TABS = ["Overview", "Chart", "Financials", "Insider"];
+const TABS = ["Overview", "Chart", "Financials"];
 
 export default function StockDetailScreen() {
   const { symbol } = useLocalSearchParams<{ symbol: string }>();
   const [activeTab, setActiveTab] = useState(0);
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState(0); // Default to 1D
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState(0);
   const [chartType, setChartType] = useState<"line" | "candle">("line");
   const scrollX = useRef(new Animated.Value(0)).current;
 
-  console.log({ symbol });
-
   // Fetch stock history data
-  const { data: historyData, isLoading: isHistoryLoading } = useQuery({
+  const { data: historyData, isPending: isHistoryLoading } = useQuery({
     queryKey: ["stockHistory", symbol, timeFrames[selectedTimeFrame].interval],
     queryFn: () =>
       fetchStockHistory(
@@ -55,45 +50,27 @@ export default function StockDetailScreen() {
     enabled: !!symbol,
   });
 
-  // console.log({ historyData });
-
   // Fetch stock profile data
-  const { data: profileData, isLoading: isProfileLoading } = useQuery({
+  const { data: profileData, isPending: isProfileLoading } = useQuery({
     queryKey: ["stockModule", symbol, "all"],
     queryFn: () => fetchStockModule(symbol as string, "asset-profile"),
     enabled: !!symbol,
   });
 
-  // console.log(profileData);
-
-  // Fetch insider trades data
-  const { data: insiderData, isLoading: isInsiderLoading } = useQuery({
-    queryKey: ["insiderTrades"],
-    queryFn: () => fetchInsiderTrades(),
-    enabled: !!symbol && activeTab === 3, // Only fetch when Insider tab is active
-  });
-
-  // console.log({ insiderData });
-
   // Process chart data
   const processedChartData = React.useMemo(() => {
-    if (!historyData?.timestamp || !historyData?.indicators?.quote?.[0])
-      return [];
+    if (!historyData?.body) return [];
 
-    return historyData.timestamp
-      .map((timestamp, index) => {
-        const quote = historyData.indicators.quote[0];
-        return {
-          timestamp,
-          date: new Date(timestamp * 1000),
-          open: quote.open[index],
-          high: quote.high[index],
-          low: quote.low[index],
-          close: quote.close[index],
-          value: quote.close[index],
-        };
-      })
-      .filter((item) => item.value != null);
+    return Object.entries(historyData.body).map(([timestamp, data]) => ({
+      timestamp: parseInt(timestamp),
+      date: new Date(parseInt(timestamp) * 1000),
+      open: data.open,
+      high: data.high,
+      low: data.low,
+      close: data.close,
+      value: data.close,
+      volume: data.volume,
+    }));
   }, [historyData]);
 
   // Calculate price change data
@@ -114,18 +91,13 @@ export default function StockDetailScreen() {
     };
   }, [processedChartData]);
 
-  // Handle tab change
-  const handleTabChange = (index: number) => {
-    setActiveTab(index);
-  };
-
   const renderTabBar = () => {
     return (
       <View className="flex-row bg-white border-b border-gray-200">
         {TABS.map((tab, index) => (
           <Pressable
             key={tab}
-            onPress={() => handleTabChange(index)}
+            onPress={() => setActiveTab(index)}
             className={`flex-1 py-3 items-center border-b-2 ${
               activeTab === index ? "border-blue-600" : "border-transparent"
             }`}
@@ -216,26 +188,30 @@ export default function StockDetailScreen() {
 
     if (chartType === "line") {
       return (
-        <LineChart.Provider data={processedChartData}>
-          <LineChart height={260} width={SCREEN_WIDTH}>
-            <LineChart.Path color={chartColor} width={2}>
-              <LineChart.Gradient />
-            </LineChart.Path>
-            <LineChart.CursorCrosshair color={chartColor} />
-          </LineChart>
-        </LineChart.Provider>
+        <GestureHandlerRootView>
+          <LineChart.Provider data={processedChartData}>
+            <LineChart height={260} width={SCREEN_WIDTH}>
+              <LineChart.Path color={chartColor} width={2}>
+                <LineChart.Gradient />
+              </LineChart.Path>
+              <LineChart.CursorCrosshair color={chartColor} />
+            </LineChart>
+          </LineChart.Provider>
+        </GestureHandlerRootView>
       );
     } else {
       return (
-        <CandlestickChart.Provider data={processedChartData}>
-          <CandlestickChart height={260} width={SCREEN_WIDTH}>
-            <CandlestickChart.Candles
-              positiveColor="#22c55e"
-              negativeColor="#ef4444"
-            />
-            <CandlestickChart.Crosshair />
-          </CandlestickChart>
-        </CandlestickChart.Provider>
+        <GestureHandlerRootView>
+          <CandlestickChart.Provider data={processedChartData}>
+            <CandlestickChart height={260} width={SCREEN_WIDTH}>
+              <CandlestickChart.Candles
+                positiveColor="#22c55e"
+                negativeColor="#ef4444"
+              />
+              <CandlestickChart.Crosshair />
+            </CandlestickChart>
+          </CandlestickChart.Provider>
+        </GestureHandlerRootView>
       );
     }
   };
@@ -250,19 +226,15 @@ export default function StockDetailScreen() {
       );
     }
 
-    const assetProfile = profileData?.assetProfile;
-    const summaryDetail = profileData?.summaryDetail;
-    const keyStats = profileData?.defaultKeyStatistics;
+    const profile = profileData?.body;
 
     return (
       <View className="p-4">
         {/* Company Description */}
-        {assetProfile?.longBusinessSummary && (
+        {profile?.longBusinessSummary && (
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-2">About</Text>
-            <Text className="text-gray-700">
-              {assetProfile.longBusinessSummary}
-            </Text>
+            <Text className="text-gray-700">{profile.longBusinessSummary}</Text>
           </View>
         )}
 
@@ -270,31 +242,31 @@ export default function StockDetailScreen() {
         <View className="mb-4">
           <Text className="text-lg font-semibold mb-2">Company Info</Text>
           <View className="bg-white rounded-lg p-4 shadow-sm">
-            {assetProfile?.sector && (
+            {profile?.sector && (
               <View className="flex-row justify-between py-2 border-b border-gray-100">
                 <Text className="text-gray-500">Sector</Text>
-                <Text className="font-medium">{assetProfile.sector}</Text>
+                <Text className="font-medium">{profile.sector}</Text>
               </View>
             )}
-            {assetProfile?.industry && (
+            {profile?.industry && (
               <View className="flex-row justify-between py-2 border-b border-gray-100">
                 <Text className="text-gray-500">Industry</Text>
-                <Text className="font-medium">{assetProfile.industry}</Text>
+                <Text className="font-medium">{profile.industry}</Text>
               </View>
             )}
-            {assetProfile?.fullTimeEmployees && (
+            {profile?.fullTimeEmployees && (
               <View className="flex-row justify-between py-2 border-b border-gray-100">
                 <Text className="text-gray-500">Employees</Text>
                 <Text className="font-medium">
-                  {assetProfile.fullTimeEmployees.toLocaleString()}
+                  {profile.fullTimeEmployees.toLocaleString()}
                 </Text>
               </View>
             )}
-            {assetProfile?.website && (
+            {profile?.website && (
               <View className="flex-row justify-between py-2">
                 <Text className="text-gray-500">Website</Text>
                 <Text className="font-medium text-blue-600">
-                  {assetProfile.website
+                  {profile.website
                     .replace("http://", "")
                     .replace("https://", "")}
                 </Text>
@@ -303,54 +275,32 @@ export default function StockDetailScreen() {
           </View>
         </View>
 
-        {/* Key Statistics */}
-        <View className="mb-4">
-          <Text className="text-lg font-semibold mb-2">Key Statistics</Text>
-          <View className="bg-white rounded-lg p-4 shadow-sm">
-            {summaryDetail?.marketCap && (
-              <View className="flex-row justify-between py-2 border-b border-gray-100">
-                <Text className="text-gray-500">Market Cap</Text>
-                <Text className="font-medium">
-                  ${(summaryDetail.marketCap / 1000000000).toFixed(2)}B
-                </Text>
-              </View>
-            )}
-            {summaryDetail?.fiftyTwoWeekLow &&
-              summaryDetail?.fiftyTwoWeekHigh && (
-                <View className="flex-row justify-between py-2 border-b border-gray-100">
-                  <Text className="text-gray-500">52-Week Range</Text>
-                  <Text className="font-medium">
-                    ${summaryDetail.fiftyTwoWeekLow.toFixed(2)} - $
-                    {summaryDetail.fiftyTwoWeekHigh.toFixed(2)}
-                  </Text>
+        {/* Company Officers */}
+        {profile?.companyOfficers && profile.companyOfficers.length > 0 && (
+          <View className="mb-4">
+            <Text className="text-lg font-semibold mb-2">Key Executives</Text>
+            <View className="bg-white rounded-lg p-4 shadow-sm">
+              {profile.companyOfficers.map((officer, index) => (
+                <View
+                  key={index}
+                  className={`py-2 ${
+                    index < profile.companyOfficers.length - 1
+                      ? "border-b border-gray-100"
+                      : ""
+                  }`}
+                >
+                  <Text className="font-medium">{officer.name}</Text>
+                  <Text className="text-gray-500">{officer.title}</Text>
+                  {officer.totalPay && (
+                    <Text className="text-gray-600">
+                      Total Pay: {officer.totalPay.fmt}
+                    </Text>
+                  )}
                 </View>
-              )}
-            {summaryDetail?.averageVolume && (
-              <View className="flex-row justify-between py-2 border-b border-gray-100">
-                <Text className="text-gray-500">Avg. Volume</Text>
-                <Text className="font-medium">
-                  {summaryDetail.averageVolume.toLocaleString()}
-                </Text>
-              </View>
-            )}
-            {summaryDetail?.trailingPE && (
-              <View className="flex-row justify-between py-2 border-b border-gray-100">
-                <Text className="text-gray-500">P/E Ratio</Text>
-                <Text className="font-medium">
-                  {summaryDetail.trailingPE.toFixed(2)}
-                </Text>
-              </View>
-            )}
-            {summaryDetail?.dividendYield && (
-              <View className="flex-row justify-between py-2">
-                <Text className="text-gray-500">Dividend Yield</Text>
-                <Text className="font-medium">
-                  {(summaryDetail.dividendYield * 100).toFixed(2)}%
-                </Text>
-              </View>
-            )}
+              ))}
+            </View>
           </View>
-        </View>
+        )}
       </View>
     );
   };
@@ -366,78 +316,12 @@ export default function StockDetailScreen() {
   };
 
   const renderFinancialsTab = () => {
-    // This would be expanded with financial data
     return (
       <View className="p-4 items-center justify-center h-64">
         <Text className="text-gray-500">Financial data would go here...</Text>
         <Text className="text-gray-500 mt-2">
           Consider using the earnings and financial data endpoints
         </Text>
-      </View>
-    );
-  };
-
-  const renderInsiderTab = () => {
-    if (isInsiderLoading) {
-      return (
-        <View className="p-4 items-center justify-center">
-          <ActivityIndicator size="large" color="#0284c7" />
-          <Text className="mt-2 text-gray-500">
-            Loading insider trading data...
-          </Text>
-        </View>
-      );
-    }
-
-    const insiderTransactions =
-      insiderData?.insiderTransactions?.transactions || [];
-
-    if (insiderTransactions.length === 0) {
-      return (
-        <View className="p-4 items-center justify-center h-64">
-          <Ionicons name="alert-circle-outline" size={48} color="#9ca3af" />
-          <Text className="text-gray-500 mt-2">
-            No recent insider trading data available
-          </Text>
-        </View>
-      );
-    }
-
-    return (
-      <View className="p-4">
-        <Text className="text-lg font-semibold mb-2">
-          Recent Insider Transactions
-        </Text>
-
-        {insiderTransactions.map((transaction, index) => (
-          <View
-            key={`${transaction.filerName}-${index}`}
-            className="bg-white rounded-lg p-4 shadow-sm mb-3"
-          >
-            <View className="mb-2">
-              <Text className="font-semibold">{transaction.filerName}</Text>
-              <Text className="text-gray-500 text-sm">
-                {transaction.filerRelation}
-              </Text>
-            </View>
-
-            <View className="flex-row justify-between items-center mb-1">
-              <Text className="text-gray-700">
-                {transaction.transactionText}
-              </Text>
-              <Text className="font-medium">{transaction.startDate}</Text>
-            </View>
-
-            <View className="flex-row justify-between">
-              <Text className="text-gray-500">
-                Shares: {transaction.shares?.fmt || "N/A"}
-              </Text>
-              <Text className="font-medium">
-                {transaction.value?.fmt || "N/A"}
-              </Text>
-            </View>
-          </View>
-        ))}
       </View>
     );
   };
@@ -454,9 +338,10 @@ export default function StockDetailScreen() {
 
   return (
     <View className="flex-1 bg-gray-50">
+      <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
-          headerTitle: symbol as string,
+          headerTitle: historyData?.meta?.shortName || symbol,
           headerRight: () => (
             <View className="flex-row">
               <Pressable className="mx-2">
@@ -503,7 +388,6 @@ export default function StockDetailScreen() {
         {activeTab === 0 && renderOverviewTab()}
         {activeTab === 1 && renderChartTab()}
         {activeTab === 2 && renderFinancialsTab()}
-        {activeTab === 3 && renderInsiderTab()}
       </ScrollView>
     </View>
   );

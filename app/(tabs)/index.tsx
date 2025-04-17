@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  StatusBar,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
@@ -42,6 +43,7 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-gray-50">
+      <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
           headerTitle: "Market Overview",

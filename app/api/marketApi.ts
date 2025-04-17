@@ -36,155 +36,120 @@ export interface StockTicker {
 }
 
 export interface StockHistoryData {
-  meta: {
-    symbol: string;
-    firstTradeDate: number;
-    regularMarketTime: number;
-    gmtoffset: number;
-    timezone: string;
-    currentTradingPeriod: {
-      pre: TradingPeriod;
-      regular: TradingPeriod;
-      post: TradingPeriod;
+  body: {
+    [timestamp: string]: {
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+      volume: number;
+      date: string;
+      date_utc: number;
     };
   };
-  timestamp: number[];
-  indicators: {
-    quote: Array<{
-      high: number[];
-      open: number[];
-      low: number[];
-      close: number[];
-      volume: number[];
-    }>;
+  meta: {
+    chartPreviousClose: number;
+    currency: string;
+    dataGranularity: string;
+    exchangeName: string;
+    exchangeTimezoneName: string;
+    fiftyTwoWeekHigh: number;
+    fiftyTwoWeekLow: number;
+    firstTradeDate: number;
+    fullExchangeName: string;
+    gmtoffset: number;
+    hasPrePostMarketData: boolean;
+    instrumentType: string;
+    longName: string;
+    previousClose: number;
+    priceHint: number;
+    processedTime: string;
+    range: string;
+    regularMarketDayHigh: number;
+    regularMarketDayLow: number;
+    regularMarketPrice: number;
+    regularMarketTime: number;
+    regularMarketVolume: number;
+    scale: number;
+    shortName: string;
+    status: number;
+    symbol: string;
+    timezone: string;
+    version: string;
   };
-}
-
-interface TradingPeriod {
-  timezone: string;
-  end: number;
-  start: number;
-  gmtoffset: number;
 }
 
 export interface StockModuleData {
-  assetProfile?: {
-    address1?: string;
-    city?: string;
-    state?: string;
-    zip?: string;
-    country?: string;
-    phone?: string;
-    website?: string;
-    industry?: string;
-    sector?: string;
-    longBusinessSummary?: string;
-    fullTimeEmployees?: number;
-    companyOfficers?: Array<{
+  body: {
+    address1: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+    phone: string;
+    website: string;
+    industry: string;
+    industryKey: string;
+    industryDisp: string;
+    sector: string;
+    sectorKey: string;
+    sectorDisp: string;
+    longBusinessSummary: string;
+    fullTimeEmployees: number;
+    companyOfficers: Array<{
+      maxAge: number;
       name: string;
+      age: number;
       title: string;
-      age?: number;
-      yearBorn?: number;
-      fiscalYear?: number;
-      totalPay?: number;
-      exercisedValue?: number;
-      unexercisedValue?: number;
+      yearBorn: number;
+      fiscalYear: number;
+      totalPay: {
+        raw: number;
+        fmt: string;
+        longFmt: string;
+      };
+      exercisedValue: {
+        raw: number;
+        fmt: string | null;
+        longFmt: string;
+      };
+      unexercisedValue: {
+        raw: number;
+        fmt: string;
+        longFmt: string;
+      };
     }>;
-  };
-  summaryDetail?: {
-    previousClose?: number;
-    open?: number;
-    dayLow?: number;
-    dayHigh?: number;
-    regularMarketPreviousClose?: number;
-    regularMarketOpen?: number;
-    regularMarketDayLow?: number;
-    regularMarketDayHigh?: number;
-    dividendRate?: number;
-    dividendYield?: number;
-    exDividendDate?: number;
-    payoutRatio?: number;
-    fiveYearAvgDividendYield?: number;
-    beta?: number;
-    trailingPE?: number;
-    forwardPE?: number;
-    volume?: number;
-    regularMarketVolume?: number;
-    averageVolume?: number;
-    averageVolume10days?: number;
-    averageDailyVolume10Day?: number;
-    bid?: number;
-    ask?: number;
-    bidSize?: number;
-    askSize?: number;
-    marketCap?: number;
-    fiftyTwoWeekLow?: number;
-    fiftyTwoWeekHigh?: number;
-    priceToSalesTrailing12Months?: number;
-    fiftyDayAverage?: number;
-    twoHundredDayAverage?: number;
-    currency?: string;
-    fromCurrency?: string;
-    toCurrency?: string;
-    lastMarket?: string;
-    algorithm?: string;
-    tradeable?: boolean;
-  };
-  defaultKeyStatistics?: {
-    enterpriseValue?: number;
-    forwardPE?: number;
-    profitMargins?: number;
-    floatShares?: number;
-    sharesOutstanding?: number;
-    sharesShort?: number;
-    sharesShortPriorMonth?: number;
-    shortRatio?: number;
-    shortPercentOfFloat?: number;
-    beta?: number;
-    priceToBook?: number;
-    pegRatio?: number;
-    enterpriseToRevenue?: number;
-    enterpriseToEbitda?: number;
-    lastFiscalYearEnd?: number;
-    mostRecentQuarter?: number;
-    earningsQuarterlyGrowth?: number;
-    revenueQuarterlyGrowth?: number;
-    netIncomeToCommon?: number;
-    trailingEps?: number;
-    forwardEps?: number;
-    bookValue?: number;
-    lastSplitFactor?: string;
-    lastSplitDate?: number;
+    auditRisk: number;
+    boardRisk: number;
+    compensationRisk: number;
+    shareHolderRightsRisk: number;
+    overallRisk: number;
+    governanceEpochDate: number;
+    compensationAsOfEpochDate: number;
+    irWebsite: string;
+    executiveTeam: any[];
+    maxAge: number;
   };
 }
 
 export interface InsiderTrade {
-  startDate: string;
-  ownership: string;
-  filerName: string;
-  transactionText: string;
-  moneyText: string;
-  filerRelation: string;
-  shares: {
-    amount: number;
-    raw: number;
-    fmt: string;
-    longFmt: string;
-  };
-  maxAge: number;
-  value: {
-    amount: number;
-    raw: number;
-    fmt: string;
-    longFmt: string;
-  };
-  filerUrl: string;
+  symbol: string;
+  symbolName: string;
+  fullName: string;
+  shortJobTitle: string;
+  transactionType: string;
+  amount: string;
+  reportedPrice: string;
+  usdValue: string;
+  eodHolding: string;
+  transactionDate: string;
+  symbolCode: string;
+  hasOptions: string;
+  symbolType: number;
 }
 
 export interface InsiderTradesResponse {
-  insiderTransactions: {
-    transactions: InsiderTrade[];
-  };
+  body: InsiderTrade[];
 }
 
 export async function fetchMarketTickers(
