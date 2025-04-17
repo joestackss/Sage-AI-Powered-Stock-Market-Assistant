@@ -14,12 +14,11 @@ import { searchStocks } from "../api/marketApi";
 import { SearchResult } from "../api/marketApi";
 import { Ionicons } from "@expo/vector-icons";
 import { useWatchlistStore } from "../store/watchlistStore";
-import { StockTicker } from "../api/marketApi";
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
-  const { addToWatchlist, isInWatchlist } = useWatchlistStore();
+  const { addStock, isInWatchlist } = useWatchlistStore();
 
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ["stock-search", searchQuery],
@@ -67,18 +66,6 @@ const SearchScreen = () => {
   const renderItem = ({ item }: { item: SearchResult }) => {
     const isWatched = isInWatchlist(item.symbol);
 
-    const handleAddToWatchlist = () => {
-      const stock: StockTicker = {
-        symbol: item.symbol,
-        name: item.longname,
-        lastsale: "0",
-        netchange: "0",
-        pctchange: "0",
-        marketCap: "0",
-      };
-      addToWatchlist(stock);
-    };
-
     return (
       <View style={styles.resultItem}>
         <View style={styles.resultContent}>
@@ -93,7 +80,7 @@ const SearchScreen = () => {
         </View>
         <TouchableOpacity
           style={styles.watchlistButton}
-          onPress={handleAddToWatchlist}
+          onPress={() => addStock(item.symbol)}
           disabled={isWatched}
         >
           <Ionicons

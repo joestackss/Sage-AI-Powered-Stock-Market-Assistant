@@ -203,6 +203,8 @@ export interface SearchResponse {
 
 export interface StockQuote {
   symbol: string;
+  shortName: string;
+  longName: string;
   regularMarketPrice: number;
   regularMarketChange: number;
   regularMarketChangePercent: number;
@@ -215,6 +217,19 @@ export interface StockQuote {
   fiftyTwoWeekHigh: number;
   fiftyTwoWeekLow: number;
   averageDailyVolume3Month: number;
+  averageDailyVolume10Day: number;
+  currency: string;
+  exchange: string;
+  fullExchangeName: string;
+  marketState: string;
+  quoteType: string;
+  typeDisp: string;
+  preMarketPrice?: number;
+  preMarketChange?: number;
+  preMarketChangePercent?: number;
+  postMarketPrice?: number;
+  postMarketChange?: number;
+  postMarketChangePercent?: number;
 }
 
 export interface QuotesResponse {
@@ -222,6 +237,8 @@ export interface QuotesResponse {
     version: string;
     status: number;
     copywrite: string;
+    symbol: string;
+    processedTime: string;
   };
   body: StockQuote[];
 }
@@ -355,8 +372,8 @@ export async function fetchStockQuotes(
 ): Promise<QuotesResponse> {
   const options = {
     method: "GET",
-    url: "https://yahoo-finance15.p.rapidapi.com/api/v1/market/quotes",
-    params: { symbols: symbols.join(",") },
+    url: "https://yahoo-finance15.p.rapidapi.com/api/v1/markets/stock/quotes",
+    params: { ticker: symbols.join(",") },
     headers: baseHeaders,
   };
 

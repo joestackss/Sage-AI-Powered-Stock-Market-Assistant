@@ -1,45 +1,32 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { StockTicker } from "../api/marketApi";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface WatchlistState {
-  watchlist: StockTicker[];
-  addToWatchlist: (stock: StockTicker) => void;
-  removeFromWatchlist: (symbol: string) => void;
+  stocks: string[];
+  addStock: (symbol: string) => void;
+  removeStock: (symbol: string) => void;
   isInWatchlist: (symbol: string) => boolean;
 }
 
 export const useWatchlistStore = create<WatchlistState>()(
   persist(
     (set, get) => ({
-      watchlist: [],
-      addToWatchlist: (stock: StockTicker) => {
-        set((state: WatchlistState) => {
-          if (
-            !state.watchlist.some(
-              (item: StockTicker) => item.symbol === stock.symbol
-            )
-          ) {
-            return { watchlist: [...state.watchlist, stock] };
-          }
-          return state;
-        });
+      stocks: [],
+      addStock: (symbol) => {
+        const currentStocks = get().stocks;
+        if (!currentStocks.includes(symbol)) {
+          set({ stocks: [...currentStocks, symbol] });
+        }
       },
-      removeFromWatchlist: (symbol: string) => {
-        set((state: WatchlistState) => ({
-          watchlist: state.watchlist.filter(
-            (item: StockTicker) => item.symbol !== symbol
-          ),
-        }));
+      removeStock: (symbol) => {
+        set({ stocks: get().stocks.filter((s) => s !== symbol) });
       },
-      isInWatchlist: (symbol: string) => {
-        return get().watchlist.some(
-          (item: StockTicker) => item.symbol === symbol
-        );
-      },
+      isInWatchlist: (symbol) => get().stocks.includes(symbol),
     }),
     {
       name: "stock-watchlist",
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

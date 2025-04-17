@@ -9,71 +9,91 @@ import {
 import { useWatchlistStore } from "../store/watchlistStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStockQuotes } from "../api/marketApi";
-import { StockTicker } from "../api/marketApi";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 
 const WatchlistScreen = () => {
-  const { watchlist, removeFromWatchlist } = useWatchlistStore();
-  const symbols = watchlist.map((item) => item.symbol);
+  const { stocks, removeStock } = useWatchlistStore();
 
   const { data: quotes, isLoading } = useQuery({
-    queryKey: ["watchlist-quotes", symbols],
-    queryFn: () => fetchStockQuotes(symbols),
-    enabled: symbols.length > 0,
+    queryKey: ["watchlist-quotes", stocks],
+    queryFn: () => fetchStockQuotes(stocks),
+    enabled: stocks.length > 0,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  console.log({ quotes });
 
   const renderRightActions = (symbol: string) => {
     return (
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => removeFromWatchlist(symbol)}
+        onPress={() => removeStock(symbol)}
       >
         <Ionicons name="trash-outline" size={24} color="white" />
       </TouchableOpacity>
     );
   };
 
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: StockTicker;
-    index: number;
-  }) => {
-    const quote = quotes?.body.find((q) => q.symbol === item.symbol);
-    const changeColor = quote?.regularMarketChangePercent
-      ? quote.regularMarketChangePercent >= 0
-        ? "#4CAF50"
-        : "#F44336"
-      : "#000";
+  const renderItem = ({ item: symbol }: { item: string }) => {
+    const quote = quotes?.body?.find((q) => q.symbol === symbol);
+    const change = quote?.regularMarketChange || 0;
+    const changePercent = quote?.regularMarketChangePercent || 0;
+    const isPositive = change >= 0;
+    const isPreMarket = quote?.marketState === "PRE";
+    const isPostMarket = quote?.marketState === "POST";
+    const currentPrice = isPreMarket
+      ? quote?.preMarketPrice
+      : isPostMarket
+      ? quote?.postMarketPrice
+      : quote?.regularMarketPrice;
+    const currentChange = isPreMarket
+      ? quote?.preMarketChange
+      : isPostMarket
+      ? quote?.postMarketChange
+      : quote?.regularMarketChange;
+    const currentChangePercent = isPreMarket
+      ? quote?.preMarketChangePercent
+      : isPostMarket
+      ? quote?.postMarketChangePercent
+      : quote?.regularMarketChangePercent;
 
     return (
       <Animated.View
-        entering={FadeInRight.delay(index * 100)}
+        entering={FadeInRight}
         exiting={FadeOutLeft}
+        style={styles.stockItem}
       >
-        <Swipeable renderRightActions={() => renderRightActions(item.symbol)}>
-          <View style={styles.itemContainer}>
-            <View style={styles.symbolContainer}>
-              <Text style={styles.symbol}>{item.symbol}</Text>
+        <Swipeable renderRightActions={() => renderRightActions(symbol)}>
+          <View style={styles.stockContent}>
+            <View>
+              <Text style={styles.symbol}>{symbol}</Text>
               <Text style={styles.name} numberOfLines={1}>
-                {item.name}
+                {quote?.shortName || quote?.longName || symbol}
               </Text>
+              <Text style={styles.exchange}>{quote?.fullExchangeName}</Text>
             </View>
             <View style={styles.priceContainer}>
-              {quote && (
-                <>
-                  <Text style={styles.price}>
-                    ${quote.regularMarketPrice.toFixed(2)}
+              <Text style={styles.price}>
+                ${currentPrice?.toFixed(2) || "0.00"}
+              </Text>
+              <Text
+                style={[
+                  styles.change,
+                  isPositive ? styles.positiveChange : styles.negativeChange,
+                ]}
+              >
+                {isPositive ? "+" : ""}
+                {currentChange?.toFixed(2) || "0.00"} (
+                {currentChangePercent?.toFixed(2) || "0.00"}%)
+                {(isPreMarket || isPostMarket) && (
+                  <Text style={styles.marketState}>
+                    {" "}
+                    {isPreMarket ? "Pre" : "Post"}
                   </Text>
-                  <Text style={[styles.change, { color: changeColor }]}>
-                    {quote.regularMarketChangePercent.toFixed(2)}%
-                  </Text>
-                </>
-              )}
+                )}
+              </Text>
             </View>
           </View>
         </Swipeable>
@@ -81,27 +101,31 @@ const WatchlistScreen = () => {
     );
   };
 
-  if (watchlist.length === 0) {
+  if (isLoading) {
     return (
-      <View style={styles.emptyContainer}>
-        <Ionicons name="star-outline" size={64} color="#666" />
-        <Text style={styles.emptyText}>Your watchlist is empty</Text>
-        <Text style={styles.emptySubtext}>
-          Add stocks to your watchlist to track them here
-        </Text>
+      <View style={styles.loadingContainer}>
+        <Text>Loading watchlist...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={watchlist}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.symbol}
-        contentContainerStyle={styles.listContainer}
-        refreshing={isLoading}
-      />
+      {stocks.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Your watchlist is empty</Text>
+          <Text style={styles.emptySubtext}>
+            Add stocks to your watchlist to track them here
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={stocks}
+          renderItem={renderItem}
+          keyExtractor={(item) => item}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
     </View>
   );
 };
@@ -109,76 +133,80 @@ const WatchlistScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f5f5f5",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   listContainer: {
     padding: 16,
   },
-  itemContainer: {
+  stockItem: {
+    marginBottom: 8,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  stockContent: {
+    backgroundColor: "white",
+    padding: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  symbolContainer: {
-    flex: 1,
   },
   symbol: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#000",
   },
   name: {
     fontSize: 14,
     color: "#666",
-    marginTop: 4,
+  },
+  exchange: {
+    fontSize: 12,
+    color: "#999",
   },
   priceContainer: {
     alignItems: "flex-end",
   },
   price: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#000",
   },
   change: {
     fontSize: 14,
-    marginTop: 4,
+  },
+  positiveChange: {
+    color: "#4CAF50",
+  },
+  negativeChange: {
+    color: "#F44336",
+  },
+  marketState: {
+    fontSize: 12,
+    color: "#999",
   },
   deleteButton: {
     backgroundColor: "#F44336",
     justifyContent: "center",
     alignItems: "center",
     width: 80,
-    height: "100%",
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
+    padding: 16,
   },
   emptyText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#000",
-    marginTop: 16,
+    marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#666",
-    marginTop: 8,
     textAlign: "center",
   },
 });
