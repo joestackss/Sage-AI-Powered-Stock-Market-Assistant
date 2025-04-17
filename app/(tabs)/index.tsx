@@ -38,6 +38,15 @@ export default function HomeScreen() {
   const router = useRouter();
   const [selectedMarket, setSelectedMarket] = useState<MarketType>("STOCKS");
 
+  // Query for recent stocks (always STOCKS)
+  const { data: recentStocksData, isLoading: isLoadingRecentStocks } = useQuery(
+    {
+      queryKey: ["recentStocks"],
+      queryFn: () => fetchMarketTickers(1, "STOCKS"),
+    }
+  );
+
+  // Query for selected market type
   const { data: marketData, isLoading: isLoadingMarket } = useQuery({
     queryKey: ["marketTickers", selectedMarket],
     queryFn: () => fetchMarketTickers(1, selectedMarket),
@@ -56,7 +65,7 @@ export default function HomeScreen() {
 
   const marketTypes: MarketType[] = ["STOCKS", "ETF", "MUTUALFUNDS", "FUTURES"];
 
-  if (isLoadingMarket || isLoadingNews) {
+  if (isLoadingRecentStocks || isLoadingMarket || isLoadingNews) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
         <ActivityIndicator size="large" color="#0284c7" />
@@ -97,40 +106,55 @@ export default function HomeScreen() {
         colors={["#87CEEB", "#000000"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        className=" h-full"
+        className="h-full"
       >
-        <View className="  h-full p-4 pt-16">
+        <View className="h-full p-4 pt-16">
           {/* Market Type Segments */}
-
           <View className="flex-row justify-between items-center">
             <View className="w-1/2">
-              <Text>Good Morning</Text>
-              <Text>Derek</Text>
+              <Text className="text-white text-lg">Good Morning</Text>
+              <Text className="text-white text-xl font-bold">Derek</Text>
             </View>
             <View className="w-1/2"></View>
           </View>
 
-          {/* Market Data Grid */}
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            className="mb-4"
-          >
-            {marketData?.body.slice(0, 6).map((stock) => (
-              <View
-                key={stock.symbol}
-                style={{ width: width - 32 }}
-                className="mr-4"
-              >
-                <TouchableOpacity
-                  onPress={() => router.push(`/stock/${stock.symbol}`)}
+          {/* Recent Stocks Section */}
+          <View className="mt-4">
+            <Text className="text-white text-lg font-bold mb-2">
+              Recent Stocks
+            </Text>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+            >
+              {recentStocksData?.body.slice(0, 6).map((stock: any) => (
+                <View
+                  key={stock.symbol}
+                  style={{ width: width - 32 }}
+                  className="mr-4"
                 >
-                  <StockCard stockData={stock} />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+                  <TouchableOpacity
+                    onPress={() => router.push(`/stock/${stock.symbol}`)}
+                  >
+                    <View className="bg-white/10 rounded-lg p-4">
+                      <Text className="text-white text-lg font-bold">
+                        {stock.symbol}
+                      </Text>
+                      <Text
+                        className="text-white text-sm mb-2"
+                        numberOfLines={1}
+                      >
+                        {stock.name}
+                      </Text>
+                      <Text className="text-white">{stock.pctchange}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
 
           {/* News Section */}
           <View className="mb-8">
@@ -163,6 +187,7 @@ export default function HomeScreen() {
             )}
           </View>
 
+          {/* Market Type Segments */}
           <View>
             <ScrollView
               horizontal
@@ -183,36 +208,44 @@ export default function HomeScreen() {
             </ScrollView>
           </View>
 
-          {/* Selected Market Type Data */}
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-          >
-            {marketData?.body.slice(6).map((item) => (
-              <View
-                key={item.symbol}
-                style={{ width: width - 32 }}
-                className="mr-4"
-              >
-                <TouchableOpacity
-                  onPress={() => router.push(`/stock/${item.symbol}`)}
+          {/* Indices Section */}
+          <View>
+            <Text className="text-white text-lg font-bold mb-2">Indices</Text>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+            >
+              {marketData?.body.slice(0, 2).map((item: any) => (
+                <View
+                  key={item.symbol}
+                  style={{ width: (width - 32) / 2 }}
+                  className="mr-4"
                 >
-                  <View className="bg-white/10 rounded-lg p-4">
-                    <Text className="text-white text-lg font-bold">
-                      {item.symbol}
-                    </Text>
-                    <Text className="text-white text-sm mb-2">{item.name}</Text>
-                    <View className="flex-row justify-between">
-                      <Text className="text-white">
-                        {item.netchange} ({item.pctchange})
+                  <TouchableOpacity
+                    onPress={() => router.push(`/stock/${item.symbol}`)}
+                  >
+                    <View className="bg-white/10 rounded-lg p-4">
+                      <Text className="text-white text-lg font-bold">
+                        {item.symbol}
                       </Text>
+                      <Text
+                        className="text-white text-sm mb-2"
+                        numberOfLines={1}
+                      >
+                        {item.name}
+                      </Text>
+                      <View className="flex-row justify-between">
+                        <Text className="text-white">
+                          {item.netchange} ({item.pctchange})
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
         </View>
       </LinearGradient>
     </View>
