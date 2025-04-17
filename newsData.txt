@@ -1,0 +1,63 @@
+I am building a stock market app called "StockSense" and I have written the code for the fMarket Overview screen and also stock details screen. These are the lists of other endpoints I would like to build and the screens I would like them to be in:
+
+2. Watchlist Screen
+   - Create a local storage system using Zustand to save favorite stocks
+   - Use GET v1/market/quotes to fetch real-time data for watchlist items
+   - Add swipe-to-delete functionality for watchlist items
+
+3. News Screen
+   - Implement GET v2/market/news to show the latest market news
+   - Add filters for general market news and stock-specific news
+   - Create a news detail screen with full article view
+
+4. Search/Screener Screen
+   - Implement GET v1/search for stock lookup
+   - Implement GET v1/market/screener for advanced filtering
+   - Create a filter UI with criteria like market cap, sector, price change, etc.
+
+My tech stack is:
+- Expo React Native 
+- TypeScript
+- TanStack React Query v5 
+- Zustand 
+- NativeWind v5 / TailwindCSS
+- Expo Router
+- Reanimated v5
+
+Please help me implement these screens and endpoints while maintaining a clean architecture and good performance practices.
+```
+
+## Next Steps
+
+To continue building this app:
+
+2. **Build the Watchlist functionality** - Create a state management system using Zustand
+3. **Implement the News feed** - Add news API integration and article display
+4. **Create the Search/Screener** - Implement search and filtering functionality
+
+news api that will be implemented inside of news.tsx
+import axios from 'axios';
+
+const options = {
+  method: 'GET',
+  url: 'https://yahoo-finance15.p.rapidapi.com/api/v2/markets/news',
+  params: {
+    tickers: 'AAPL',
+    type: 'ALL'
+  },
+  headers: {
+    'x-rapidapi-key': '9288c8ca29msh202e3f882223132p1ed9ebjsna02b8d7935f6',
+    'x-rapidapi-host': 'yahoo-finance15.p.rapidapi.com'
+  }
+};
+
+try {
+	const response = await axios.request(options);
+	console.log(response.data);
+} catch (error) {
+	console.error(error);
+}
+
+
+expected data from the news api when the params of tickers is not included is in the newsData.json
+

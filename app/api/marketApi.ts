@@ -152,6 +152,80 @@ export interface InsiderTradesResponse {
   body: InsiderTrade[];
 }
 
+export interface NewsItem {
+  url: string;
+  img: string;
+  title: string;
+  text: string;
+  source: string;
+  type: string;
+  tickers: string[];
+  time: string;
+  ago: string;
+}
+
+export interface NewsResponse {
+  meta: {
+    version: string;
+    status: number;
+    copywrite: string;
+    total: number;
+  };
+  body: NewsItem[];
+}
+
+export interface SearchResult {
+  shortname: string;
+  quoteType: string;
+  symbol: string;
+  index: string;
+  score: number;
+  typeDisp: string;
+  longname: string;
+  exchDisp: string;
+  sector?: string;
+  sectorDisp?: string;
+  industry?: string;
+  industryDisp?: string;
+  dispSecIndFlag?: boolean;
+}
+
+export interface SearchResponse {
+  meta: {
+    version: string;
+    status: number;
+    copywrite: string;
+    symbol: string;
+    processedTime: string;
+  };
+  body: SearchResult[];
+}
+
+export interface StockQuote {
+  symbol: string;
+  regularMarketPrice: number;
+  regularMarketChange: number;
+  regularMarketChangePercent: number;
+  regularMarketVolume: number;
+  regularMarketPreviousClose: number;
+  regularMarketOpen: number;
+  regularMarketDayHigh: number;
+  regularMarketDayLow: number;
+  marketCap: number;
+  fiftyTwoWeekHigh: number;
+  fiftyTwoWeekLow: number;
+  averageDailyVolume3Month: number;
+}
+
+export interface QuotesResponse {
+  meta: {
+    version: string;
+    status: number;
+    copywrite: string;
+  };
+  body: StockQuote[];
+}
+
 export async function fetchMarketTickers(
   page: number = 1,
   type: string = "STOCKS"
@@ -235,6 +309,62 @@ export async function fetchInsiderTrades(): Promise<InsiderTradesResponse> {
     return response.data;
   } catch (error) {
     console.error("Error fetching insider trades:", error);
+    throw error;
+  }
+}
+
+export async function fetchMarketNews(tickers?: string): Promise<NewsResponse> {
+  const options = {
+    method: "GET",
+    url: "https://yahoo-finance15.p.rapidapi.com/api/v2/markets/news",
+    params: {
+      tickers,
+      type: "ALL",
+    },
+    headers: baseHeaders,
+  };
+
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching market news:", error);
+    throw error;
+  }
+}
+
+export async function searchStocks(query: string): Promise<SearchResponse> {
+  const options = {
+    method: "GET",
+    url: "https://yahoo-finance15.p.rapidapi.com/api/v1/markets/search",
+    params: { search: query },
+    headers: baseHeaders,
+  };
+
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.error("Error searching stocks:", error);
+    throw error;
+  }
+}
+
+export async function fetchStockQuotes(
+  symbols: string[]
+): Promise<QuotesResponse> {
+  const options = {
+    method: "GET",
+    url: "https://yahoo-finance15.p.rapidapi.com/api/v1/market/quotes",
+    params: { symbols: symbols.join(",") },
+    headers: baseHeaders,
+  };
+
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stock quotes:", error);
     throw error;
   }
 }
