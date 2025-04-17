@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   TouchableOpacity,
   Image,
@@ -38,17 +37,15 @@ const NewsScreen = () => {
     value: "all" | "market" | "stocks"
   ) => (
     <TouchableOpacity
-      style={[
-        styles.filterButton,
-        filter === value && styles.filterButtonActive,
-      ]}
+      className={`px-4 py-2 rounded-full mr-2 ${
+        filter === value ? "bg-black" : "bg-gray-100"
+      }`}
       onPress={() => setFilter(value)}
     >
       <Text
-        style={[
-          styles.filterButtonText,
-          filter === value && styles.filterButtonTextActive,
-        ]}
+        className={`font-medium ${
+          filter === value ? "text-white" : "text-gray-600"
+        }`}
       >
         {label}
       </Text>
@@ -68,30 +65,32 @@ const NewsScreen = () => {
 
     return (
       <Link href={`/news/${encodeURIComponent(item.url)}`} asChild>
-        <TouchableOpacity style={styles.newsItem}>
+        <TouchableOpacity className="flex-row mb-4 bg-white rounded-lg overflow-hidden shadow-sm">
           <Image
             source={{ uri: item.img }}
-            style={styles.newsImage}
+            className="w-24 h-24"
             resizeMode="cover"
           />
-          <View style={styles.newsContent}>
-            <Text style={styles.newsTitle}>{item.title}</Text>
-            <Text style={styles.newsText} numberOfLines={2}>
+          <View className="flex-1 p-3">
+            <Text className="text-base font-bold text-black mb-1">
+              {item.title}
+            </Text>
+            <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
               {item.text}
             </Text>
-            <View style={styles.newsFooter}>
-              <Text style={styles.newsSource}>{item.source}</Text>
-              <Text style={styles.newsTime}>{timeAgo}</Text>
+            <View className="flex-row justify-between items-center">
+              <Text className="text-xs text-gray-500">{item.source}</Text>
+              <Text className="text-xs text-gray-500">{timeAgo}</Text>
             </View>
             {item.tickers.length > 0 && (
-              <View style={styles.tickersContainer}>
+              <View className="flex-row flex-wrap mt-2">
                 {item.tickers.map((ticker: string, tickerIndex: number) => (
                   <TouchableOpacity
                     key={`${index}-${tickerIndex}-${ticker}`}
-                    style={styles.tickerButton}
+                    className="px-2 py-1 bg-gray-100 rounded mr-2 mb-2"
                     onPress={() => setSelectedTicker(ticker.replace("$", ""))}
                   >
-                    <Text style={styles.tickerText}>{ticker}</Text>
+                    <Text className="text-xs text-gray-600">{ticker}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -103,16 +102,16 @@ const NewsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.filterContainer}>
+    <View className="flex-1 bg-white">
+      <View className="flex-row p-4 border-b border-gray-200">
         {renderFilterButton("All", "all")}
         {renderFilterButton("Market", "market")}
         {renderFilterButton("Stocks", "stocks")}
       </View>
 
       {selectedTicker && (
-        <View style={styles.selectedTickerContainer}>
-          <Text style={styles.selectedTickerText}>
+        <View className="flex-row items-center justify-center p-2 bg-gray-100">
+          <Text className="text-gray-600 mr-2">
             Showing news for: {selectedTicker}
           </Text>
           <TouchableOpacity onPress={() => setSelectedTicker(null)}>
@@ -122,7 +121,7 @@ const NewsScreen = () => {
       )}
 
       {isLoading ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#000" />
         </View>
       ) : (
@@ -130,124 +129,11 @@ const NewsScreen = () => {
           data={filteredNews}
           renderItem={renderItem}
           keyExtractor={(item) => item.url}
-          contentContainerStyle={styles.listContainer}
+          className="p-4"
         />
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  filterContainer: {
-    flexDirection: "row",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    backgroundColor: "#f5f5f5",
-  },
-  filterButtonActive: {
-    backgroundColor: "#000",
-  },
-  filterButtonText: {
-    color: "#666",
-    fontWeight: "500",
-  },
-  filterButtonTextActive: {
-    color: "#fff",
-  },
-  selectedTickerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 8,
-    backgroundColor: "#f5f5f5",
-  },
-  selectedTickerText: {
-    color: "#666",
-    marginRight: 8,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  listContainer: {
-    padding: 16,
-  },
-  newsItem: {
-    flexDirection: "row",
-    marginBottom: 16,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  newsImage: {
-    width: 100,
-    height: 100,
-  },
-  newsContent: {
-    flex: 1,
-    padding: 12,
-  },
-  newsTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#000",
-    marginBottom: 4,
-  },
-  newsText: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-  },
-  newsFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  newsSource: {
-    fontSize: 12,
-    color: "#999",
-  },
-  newsTime: {
-    fontSize: 12,
-    color: "#999",
-  },
-  tickersContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 8,
-  },
-  tickerButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 4,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tickerText: {
-    fontSize: 12,
-    color: "#666",
-  },
-});
 
 export default NewsScreen;
