@@ -22,17 +22,21 @@ export function StockCard({ stockData }: StockCardProps) {
   };
 
   return (
-    <View className="bg-white rounded-lg p-4 shadow-sm">
+    <View className="bg-white/10 rounded-lg p-4 shadow-sm">
       <View className="flex-row justify-between items-center">
         <View className="flex-1">
-          <Text className="text-lg font-bold">{stockData.symbol}</Text>
-          <Text className="text-sm text-gray-500" numberOfLines={1}>
+          <Text className="text-lg font-bold text-white">
+            {stockData.symbol}
+          </Text>
+          <Text className="text-sm text-white" numberOfLines={1}>
             {stockData.name}
           </Text>
         </View>
 
         <View className="items-end">
-          <Text className="text-lg font-semibold">{stockData.lastsale}</Text>
+          <Text className="text-lg font-semibold text-white">
+            {stockData.lastsale}
+          </Text>
           <View className="flex-row items-center">
             <Text
               className={`text-sm ${
