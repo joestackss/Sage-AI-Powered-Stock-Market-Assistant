@@ -21,6 +21,8 @@ const { width } = Dimensions.get("window");
 
 type MarketType = "STOCKS" | "ETF" | "MUTUALFUNDS" | "FUTURES";
 
+const topStocks = ["AAPL", "META", "NVDA", "MSFT", "GOOGL", "AMZN"];
+
 const transformETFData = (data: any) => {
   return {
     ...data,
@@ -34,6 +36,30 @@ const transformETFData = (data: any) => {
   };
 };
 
+const sortStocks = (stocks: any[]) => {
+  if (!stocks || !stocks.length) return [];
+
+  // First, find all top stocks in the data
+  const topStockItems = stocks.filter((stock) =>
+    topStocks.includes(stock.symbol.toUpperCase())
+  );
+
+  // Sort the top stocks according to our priority order
+  const sortedTopStocks = topStocks
+    .map((symbol) =>
+      topStockItems.find((stock) => stock.symbol.toUpperCase() === symbol)
+    )
+    .filter(Boolean);
+
+  // Get all other stocks
+  const otherStocks = stocks.filter(
+    (stock) => !topStocks.includes(stock.symbol.toUpperCase())
+  );
+
+  // Combine sorted top stocks with other stocks
+  return [...sortedTopStocks, ...otherStocks];
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const [selectedMarket, setSelectedMarket] = useState<MarketType>("STOCKS");
@@ -43,6 +69,13 @@ export default function HomeScreen() {
     {
       queryKey: ["recentStocks"],
       queryFn: () => fetchMarketTickers(1, "STOCKS"),
+      select: (data) => {
+        if (!data || !data.body) return data;
+        return {
+          ...data,
+          body: sortStocks(data.body),
+        };
+      },
     }
   );
 
@@ -103,24 +136,43 @@ export default function HomeScreen() {
       />
 
       <LinearGradient
-        colors={["#87CEEB", "#000000"]}
+        colors={["#00194b", "#0C0C0C"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         className="h-full"
       >
         <View className="h-full p-4 pt-16">
           {/* Market Type Segments */}
-          <View className="flex-row justify-between items-center">
+          <View className="flex-row justify-between items-center ">
             <View className="w-1/2">
-              <Text className="text-white text-lg">Good Morning</Text>
-              <Text className="text-white text-xl font-bold">Derek</Text>
+              <Text
+                className="text-white text-lg"
+                style={{
+                  fontFamily: "RubikMedium",
+                }}
+              >
+                Good Morning
+              </Text>
+              <Text
+                className="text-white text-2xl font-bold"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                Derek Shawn
+              </Text>
             </View>
             <View className="w-1/2"></View>
           </View>
 
           {/* Recent Stocks Section */}
           <View className="mt-4">
-            <Text className="text-white text-lg font-bold mb-2">
+            <Text
+              className="text-white text-lg mb-2"
+              style={{
+                fontFamily: "RubikBold",
+              }}
+            >
               Recent Stocks
             </Text>
             <ScrollView
@@ -129,30 +181,34 @@ export default function HomeScreen() {
               showsHorizontalScrollIndicator={false}
               className="mb-4"
             >
-              {recentStocksData?.body.slice(0, 6).map((stock: any) => (
-                <View
-                  key={stock.symbol}
-                  style={{ width: width - 32 }}
-                  className="mr-4"
-                >
-                  <TouchableOpacity
-                    onPress={() => router.push(`/stock/${stock.symbol}`)}
-                  >
-                    <View className="bg-white/10 rounded-lg p-4">
-                      <Text className="text-white text-lg font-bold">
-                        {stock.symbol}
-                      </Text>
-                      <Text
-                        className="text-white text-sm mb-2"
-                        numberOfLines={1}
+              <View style={{ width: width - 32 }}>
+                <View className="flex-row flex-wrap">
+                  {recentStocksData?.body.slice(0, 6).map((stock: any) => (
+                    <View
+                      key={stock.symbol}
+                      style={{ width: (width - 32) / 3 }}
+                      className="mb-2"
+                    >
+                      <TouchableOpacity
+                        onPress={() => router.push(`/stock/${stock.symbol}`)}
                       >
-                        {stock.name}
-                      </Text>
-                      <Text className="text-white">{stock.pctchange}</Text>
+                        <View className="bg-white/10 rounded-lg p-4 mx-1">
+                          <Text className="text-white text-lg font-bold">
+                            {stock.symbol}
+                          </Text>
+                          <Text
+                            className="text-white text-sm mb-2"
+                            numberOfLines={1}
+                          >
+                            {stock.name}
+                          </Text>
+                          <Text className="text-white">{stock.pctchange}</Text>
+                        </View>
+                      </TouchableOpacity>
                     </View>
-                  </TouchableOpacity>
+                  ))}
                 </View>
-              ))}
+              </View>
             </ScrollView>
           </View>
 
@@ -219,13 +275,13 @@ export default function HomeScreen() {
               {marketData?.body.slice(0, 2).map((item: any) => (
                 <View
                   key={item.symbol}
-                  style={{ width: (width - 32) / 2 }}
+                  style={{ width: width - 32 }}
                   className="mr-4"
                 >
                   <TouchableOpacity
                     onPress={() => router.push(`/stock/${item.symbol}`)}
                   >
-                    <View className="bg-white/10 rounded-lg p-4">
+                    <View className="bg-white/10 rounded-lg p-4 mb-2">
                       <Text className="text-white text-lg font-bold">
                         {item.symbol}
                       </Text>
