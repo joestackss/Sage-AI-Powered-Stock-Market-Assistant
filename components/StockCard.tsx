@@ -1,6 +1,8 @@
 import { StockTicker } from "@/app/api/marketApi";
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useWatchlistStore } from "../app/store/watchlistStore";
 
 interface StockCardProps {
   stockData: StockTicker;
@@ -8,6 +10,16 @@ interface StockCardProps {
 
 export function StockCard({ stockData }: StockCardProps) {
   const isPositive = !stockData.netchange.startsWith("-");
+  const { addStock, removeStock, isInWatchlist } = useWatchlistStore();
+  const isWatched = isInWatchlist(stockData.symbol);
+
+  const handleWatchlistPress = () => {
+    if (isWatched) {
+      removeStock(stockData.symbol);
+    } else {
+      addStock(stockData.symbol);
+    }
+  };
 
   return (
     <View className="bg-white rounded-lg p-4 shadow-sm">
@@ -32,6 +44,16 @@ export function StockCard({ stockData }: StockCardProps) {
           </View>
         </View>
       </View>
+      <Pressable
+        onPress={handleWatchlistPress}
+        className="absolute top-2 right-2"
+      >
+        <Ionicons
+          name={isWatched ? "star" : "star-outline"}
+          size={24}
+          color={isWatched ? "#fbbf24" : "#0284c7"}
+        />
+      </Pressable>
     </View>
   );
 }

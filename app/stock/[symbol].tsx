@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LineChart, CandlestickChart } from "react-native-wagmi-charts";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { fetchStockHistory, fetchStockModule } from "../api/marketApi";
+import { useWatchlistStore } from "../store/watchlistStore";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -38,6 +39,16 @@ export default function StockDetailScreen() {
   const [selectedTimeFrame, setSelectedTimeFrame] = useState(0);
   const [chartType, setChartType] = useState<"line" | "candle">("line");
   const scrollX = useRef(new Animated.Value(0)).current;
+  const { addStock, removeStock, isInWatchlist } = useWatchlistStore();
+  const isWatched = isInWatchlist(symbol);
+
+  const handleWatchlistPress = () => {
+    if (isWatched) {
+      removeStock(symbol);
+    } else {
+      addStock(symbol);
+    }
+  };
 
   // Fetch stock history data
   const { data: historyData, isPending: isHistoryLoading } = useQuery({
@@ -344,8 +355,12 @@ export default function StockDetailScreen() {
           headerTitle: historyData?.meta?.shortName || symbol,
           headerRight: () => (
             <View className="flex-row">
-              <Pressable className="mx-2">
-                <Ionicons name="star-outline" size={24} color="#0284c7" />
+              <Pressable className="mx-2" onPress={handleWatchlistPress}>
+                <Ionicons
+                  name={isWatched ? "star" : "star-outline"}
+                  size={24}
+                  color={isWatched ? "#fbbf24" : "#0284c7"}
+                />
               </Pressable>
               <Pressable className="mx-2">
                 <Ionicons name="share-outline" size={24} color="#0284c7" />
