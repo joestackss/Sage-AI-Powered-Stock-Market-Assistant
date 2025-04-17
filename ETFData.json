@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "version": "v1.0",
+    "status": 200,
+    "copywrite": "https://apicalls.io",
+    "totalrecords": 3676,
+    "headers": {
+      "symbol": "SYMBOL",
+      "companyName": "NAME",
+      "lastSalePrice": "LAST PRICE",
+      "percentageChange": "% CHANGE",
+      "oneYearPercentagechange": "1 yr % CHANGE"
+    }
+  },
+  "body": [
+    {
+      "oneYearPercentage": "",
+      "symbol": "EATZ",
+      "companyName": "AdvisorShares Restaurant ETF",
+      "lastSalePrice": "$25.8244",
+      "netChange": "-0.2892",
+      "percentageChange": "-1.11%",
+      "deltaIndicator": "down"
+    },
+    {
+      "oneYearPercentage": "",
+      "symbol": "DZZ",
+      "companyName": "DB Gold Double Short ETN due February 15, 2038",
+      "lastSalePrice": "$1.7405",
+      "netChange": "-0.0586",
+      "percentageChange": "-3.26%",
+      "deltaIndicator": "down"
+    }
+  ]
+}
