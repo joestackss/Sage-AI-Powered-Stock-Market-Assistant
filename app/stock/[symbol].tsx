@@ -15,7 +15,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { LineChart, CandlestickChart } from "react-native-wagmi-charts";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { fetchStockHistory, fetchStockModule } from "../api/marketApi";
+import {
+  fetchStockHistory,
+  fetchStockModule,
+  fetchStockQuotes,
+} from "../api/marketApi";
 import { useWatchlistStore } from "../store/watchlistStore";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -41,6 +45,13 @@ export default function StockDetailScreen() {
   const [chartType, setChartType] = useState<"line" | "candle">("line");
   const { addStock, removeStock, isInWatchlist } = useWatchlistStore();
   const isWatched = isInWatchlist(symbol);
+
+  // Fetch stock quote data
+  const { data: quoteData, isPending: isQuoteLoading } = useQuery({
+    queryKey: ["stockQuote", symbol],
+    queryFn: () => fetchStockQuotes([symbol as string]),
+    enabled: !!symbol,
+  });
 
   const handleWatchlistPress = () => {
     if (isWatched) {
@@ -234,9 +245,9 @@ export default function StockDetailScreen() {
     if (isProfileLoading) {
       return (
         <View className="p-4 items-center justify-center">
-          <ActivityIndicator size="large" color="#0284c7" />
+          <ActivityIndicator size="large" color="white" />
           <Text
-            className="mt-2 text-gray-500"
+            className="mt-2 text-white"
             style={{
               fontFamily: "RubikBold",
             }}
@@ -495,37 +506,60 @@ export default function StockDetailScreen() {
         <View className="h-full px-4 ">
           <ScrollView>
             {/* Stock Price Header */}
-            <View className=" p-4 mb-4">
-              <Text
-                className="text-3xl font-bold text-white"
-                style={{
-                  fontFamily: "RubikBold",
-                }}
-              >
-                $
-                {processedChartData.length > 0
-                  ? processedChartData[
-                      processedChartData.length - 1
-                    ].value.toFixed(2)
-                  : "--"}
-              </Text>
-
-              <View className="flex-row items-center mt-1">
+            <View className="flex-row items-center justify-between py-4">
+              <View className="">
                 <Text
-                  className={`text-lg ${
-                    priceChangeData.isPositive
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
+                  className="text-2xl text-white"
                   style={{
-                    fontFamily: "RubikSemiBold",
+                    fontFamily: "RubikBold",
                   }}
                 >
-                  {priceChangeData.isPositive ? "+" : ""}
-                  {priceChangeData.change.toFixed(2)}(
-                  {priceChangeData.isPositive ? "+" : ""}
-                  {priceChangeData.percentChange.toFixed(2)}%)
+                  {symbol}
                 </Text>
+                {quoteData?.body?.[0]?.longName && (
+                  <Text
+                    className="text-lg text-white/80"
+                    style={{
+                      fontFamily: "RubikMedium",
+                    }}
+                  >
+                    {quoteData.body[0].longName}
+                  </Text>
+                )}
+              </View>
+
+              <View className="">
+                <Text
+                  className="text-2xl font-bold text-white"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  $
+                  {processedChartData.length > 0
+                    ? processedChartData[
+                        processedChartData.length - 1
+                      ].value.toFixed(2)
+                    : "--"}
+                </Text>
+
+                <View className="flex-row items-center mt-1">
+                  <Text
+                    className={`text-lg ${
+                      priceChangeData.isPositive
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                    style={{
+                      fontFamily: "RubikSemiBold",
+                    }}
+                  >
+                    {priceChangeData.isPositive ? "+" : ""}
+                    {priceChangeData.change.toFixed(2)}(
+                    {priceChangeData.isPositive ? "+" : ""}
+                    {priceChangeData.percentChange.toFixed(2)}%)
+                  </Text>
+                </View>
               </View>
             </View>
 

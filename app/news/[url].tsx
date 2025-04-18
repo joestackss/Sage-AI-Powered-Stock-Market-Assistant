@@ -1,66 +1,50 @@
 import React from "react";
-import { View, StyleSheet, ActivityIndicator, Linking } from "react-native";
+import { View, ActivityIndicator, Linking } from "react-native";
 import { WebView } from "react-native-webview";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, TouchableOpacity } from "react-native-gesture-handler";
+import { Pressable } from "react-native-gesture-handler";
+import { LinearGradient } from "expo-linear-gradient";
 
 const NewsDetailScreen = () => {
   const { url } = useLocalSearchParams<{ url: string }>();
   const decodedUrl = decodeURIComponent(url);
 
   const renderLoading = () => (
-    <View style={styles.loadingContainer}>
+    <View className="flex-1 justify-center items-center bg-white">
       <ActivityIndicator size="large" color="#000" />
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable
-              style={styles.browserButton}
-              onPress={() => Linking.openURL(decodedUrl)}
-            >
-              <Ionicons name="open-outline" size={24} color="#000" />
+    <View className="flex-1 bg-white">
+      <LinearGradient
+        colors={["#00194b", "#0C0C0C"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="h-full"
+      >
+        <View className="h-full ">
+          <View className="pt-12 p-4 flex-row">
+            <Pressable className="" onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="white" />
             </Pressable>
-          ),
-        }}
-      />
-      <WebView
-        source={{ uri: decodedUrl }}
-        style={styles.webview}
-        renderLoading={renderLoading}
-        startInLoadingState={true}
-        allowsBackForwardNavigationGestures={true}
-        onError={(syntheticEvent) => {
-          const { nativeEvent } = syntheticEvent;
-          console.warn("WebView error: ", nativeEvent);
-        }}
-      />
+          </View>
+          <WebView
+            source={{ uri: decodedUrl }}
+            className="flex-1"
+            renderLoading={renderLoading}
+            startInLoadingState={true}
+            allowsBackForwardNavigationGestures={true}
+            onError={(syntheticEvent) => {
+              const { nativeEvent } = syntheticEvent;
+              console.warn("WebView error: ", nativeEvent);
+            }}
+          />
+        </View>
+      </LinearGradient>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  webview: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  browserButton: {
-    marginRight: 16,
-  },
-});
 
 export default NewsDetailScreen;
