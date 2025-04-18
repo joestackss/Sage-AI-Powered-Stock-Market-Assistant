@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Dimensions,
   StatusBar,
+  FlatList,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useRouter, Link } from "expo-router";
@@ -18,6 +19,14 @@ import { formatDistanceToNow } from "date-fns";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+
+const chunkArray = (array: any[], size: number) => {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+};
 
 type MarketType = "STOCKS" | "ETF" | "MUTUALFUNDS" | "FUTURES";
 
@@ -65,7 +74,7 @@ export default function HomeScreen() {
   const [selectedMarket, setSelectedMarket] = useState<MarketType>("STOCKS");
 
   // Query for recent stocks (always STOCKS)
-  const { data: recentStocksData, isLoading: isLoadingRecentStocks } = useQuery(
+  const { data: recentStocksData, isPending: isLoadingRecentStocks } = useQuery(
     {
       queryKey: ["recentStocks"],
       queryFn: () => fetchMarketTickers(1, "STOCKS"),
@@ -80,7 +89,7 @@ export default function HomeScreen() {
   );
 
   // Query for selected market type
-  const { data: marketData, isLoading: isLoadingMarket } = useQuery({
+  const { data: marketData, isPending: isLoadingMarket } = useQuery({
     queryKey: ["marketTickers", selectedMarket],
     queryFn: () => fetchMarketTickers(1, selectedMarket),
     select: (data) => {
@@ -91,7 +100,7 @@ export default function HomeScreen() {
     },
   });
 
-  const { data: newsData, isLoading: isLoadingNews } = useQuery({
+  const { data: newsData, isPending: isLoadingNews } = useQuery({
     queryKey: ["market-news"],
     queryFn: () => fetchMarketNews(),
   });
@@ -100,9 +109,16 @@ export default function HomeScreen() {
 
   if (isLoadingRecentStocks || isLoadingMarket || isLoadingNews) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <ActivityIndicator size="large" color="#0284c7" />
-        <Text className="mt-4 text-gray-600">Loading data...</Text>
+      <View className="flex-1 justify-center items-center bg-blue-900">
+        <ActivityIndicator size="large" color="white" />
+        <Text
+          className="mt-4 text-white"
+          style={{
+            fontFamily: "RubikBold",
+          }}
+        >
+          Loading
+        </Text>
       </View>
     );
   }
@@ -166,7 +182,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Recent Stocks Section */}
-          <View className="mt-4">
+          <View className="mt-4 p-4 rounded-2xl bg-blue-900/10 border border-white">
             <Text
               className="text-white text-lg mb-2"
               style={{
@@ -175,67 +191,127 @@ export default function HomeScreen() {
             >
               Recent Stocks
             </Text>
-            <ScrollView
+
+            <FlatList
+              data={chunkArray(recentStocksData?.body || [], 6)}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
-              className="mb-4"
-            >
-              <View style={{ width: width - 32 }}>
-                <View className="flex-row flex-wrap">
-                  {recentStocksData?.body.slice(0, 6).map((stock: any) => (
-                    <View
-                      key={stock.symbol}
-                      style={{ width: (width - 32) / 3 }}
-                      className="mb-2"
-                    >
-                      <TouchableOpacity
-                        onPress={() => router.push(`/stock/${stock.symbol}`)}
-                      >
-                        <View className="bg-white/10 rounded-lg p-4 mx-1">
-                          <Text className="text-white text-lg font-bold">
-                            {stock.symbol}
-                          </Text>
-                          <Text
-                            className="text-white text-sm mb-2"
-                            numberOfLines={1}
+              keyExtractor={(_, index) => `page-${index}`}
+              getItemLayout={(data, index) => ({
+                length: width - 32,
+                offset: (width - 32) * index,
+                index,
+              })}
+              renderItem={({ item: chunk }) => {
+                return (
+                  <View style={{ width: width - 32 }}>
+                    <View className="flex-row flex-wrap  ">
+                      {chunk.map((stock: any) => {
+                        const isPositive = !stock.netchange.startsWith("-");
+                        return (
+                          <View
+                            key={stock.symbol}
+                            style={{ width: (width - 32) / 3 }}
+                            className="mb-2 "
                           >
-                            {stock.name}
-                          </Text>
-                          <Text className="text-white">{stock.pctchange}</Text>
-                        </View>
-                      </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() =>
+                                router.push(`/stock/${stock.symbol}`)
+                              }
+                            >
+                              <View className="items-center">
+                                <Text
+                                  className="text-white text-lg"
+                                  style={{
+                                    fontFamily: "RubikBold",
+                                  }}
+                                >
+                                  {stock.symbol}
+                                </Text>
+                                <Text
+                                  className={`text-sm ${
+                                    isPositive
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                  style={{
+                                    fontFamily: "RubikSemiBold",
+                                  }}
+                                >
+                                  {stock.pctchange}
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          </View>
+                        );
+                      })}
                     </View>
-                  ))}
-                </View>
-              </View>
-            </ScrollView>
+                  </View>
+                );
+              }}
+            />
           </View>
 
           {/* News Section */}
-          <View className="mb-8">
+          <View className="my-8">
             <View className="flex-row justify-between items-center mb-2">
-              <Text className="text-white text-lg font-bold">Latest News</Text>
+              <Text
+                className="text-white text-lg"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                Latest News
+              </Text>
               <Link href="/news" asChild>
                 <TouchableOpacity className="flex-row items-center">
-                  <Text className="text-white mr-1">View All</Text>
+                  <Text
+                    className="text-white mr-1"
+                    style={{
+                      fontFamily: "RubikMedium",
+                    }}
+                  >
+                    View All
+                  </Text>
                   <Ionicons name="arrow-forward" size={16} color="white" />
                 </TouchableOpacity>
               </Link>
             </View>
             {newsData?.body[0] && (
               <View className="bg-white/10 rounded-lg p-4">
-                <Text className="text-white text-lg font-semibold mb-2">
+                <Text
+                  className="text-white text-lg mb-2"
+                  style={{
+                    fontFamily: "RubikSemiBold",
+                  }}
+                >
                   {newsData.body[0].title}
                 </Text>
-                <Text className="text-white/80 mb-2" numberOfLines={2}>
+                <Text
+                  className="text-white/80 mb-2"
+                  numberOfLines={2}
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
                   {newsData.body[0].text}
                 </Text>
                 <View className="flex-row justify-between items-center">
-                  <Text className="text-white/60 text-sm">
+                  <Text
+                    className="text-white/60 text-sm"
+                    style={{
+                      fontFamily: "RubikBold",
+                    }}
+                  >
                     {newsData.body[0].source}
                   </Text>
-                  <Text className="text-white/60 text-sm">
+                  <Text
+                    className="text-white/60 text-sm"
+                    style={{
+                      fontFamily: "RubikBold",
+                    }}
+                  >
                     {formatNewsTime(newsData.body[0].time)}
                   </Text>
                 </View>
@@ -258,7 +334,16 @@ export default function HomeScreen() {
                     selectedMarket === type ? "bg-white/20" : "bg-white/10"
                   }`}
                 >
-                  <Text className="text-white">{type}</Text>
+                  <Text
+                    className="text-white"
+                    style={{
+                      fontFamily: `${
+                        selectedMarket === type ? "RubikBold" : "RubikMedium"
+                      }`,
+                    }}
+                  >
+                    {type}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -266,40 +351,57 @@ export default function HomeScreen() {
 
           {/* Indices Section */}
           <View>
-            <Text className="text-white text-lg font-bold mb-2">Indices</Text>
+            <Text
+              className="text-white text-lg mb-2"
+              style={{
+                fontFamily: "RubikBold",
+              }}
+            >
+              Indices
+            </Text>
             <ScrollView
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
             >
-              {marketData?.body.slice(0, 2).map((item: any) => (
-                <View
-                  key={item.symbol}
-                  style={{ width: width - 32 }}
-                  className="mr-4"
-                >
-                  <TouchableOpacity
-                    onPress={() => router.push(`/stock/${item.symbol}`)}
+              {marketData?.body.slice(0, 2).map((item: any) => {
+                const isPositive = !item.netchange.startsWith("-");
+                return (
+                  <View
+                    key={item.symbol}
+                    style={{ width: width - 32 }}
+                    className="mr-4"
                   >
-                    <View className="bg-white/10 rounded-lg p-4 mb-2">
-                      <Text className="text-white text-lg font-bold">
-                        {item.symbol}
-                      </Text>
-                      <Text
-                        className="text-white text-sm mb-2"
-                        numberOfLines={1}
-                      >
-                        {item.name}
-                      </Text>
-                      <View className="flex-row justify-between">
-                        <Text className="text-white">
-                          {item.netchange} ({item.pctchange})
+                    <TouchableOpacity
+                      onPress={() => router.push(`/stock/${item.symbol}`)}
+                    >
+                      <View className="bg-white/10 rounded-lg p-4 mb-2">
+                        <Text
+                          className="text-white text-lg"
+                          style={{
+                            fontFamily: "RubikBold",
+                          }}
+                        >
+                          {item.symbol}
                         </Text>
+
+                        <View className="flex-row justify-between">
+                          <Text
+                            className={`text-sm ${
+                              isPositive ? "text-green-600" : "text-red-600"
+                            }`}
+                            style={{
+                              fontFamily: "RubikSemiBold",
+                            }}
+                          >
+                            {item.netchange} ({item.pctchange})
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
             </ScrollView>
           </View>
         </View>

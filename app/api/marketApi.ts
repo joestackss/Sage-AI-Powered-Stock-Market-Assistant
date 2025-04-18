@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_KEY = "9288c8ca29msh202e3f882223132p1ed9ebjsna02b8d7935f6";
+const API_KEY = "e77df432d1mshae3812a6da2b6a4p16032djsn615e67ee1a16";
 const API_HOST = "yahoo-finance15.p.rapidapi.com";
 
 const baseHeaders = {
