@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   Dimensions,
   StatusBar,
-  FlatList,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useRouter, Link } from "expo-router";
@@ -17,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { formatDistanceToNow } from "date-fns";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Carousel from "react-native-reanimated-carousel";
 
 const { width } = Dimensions.get("window");
 
@@ -192,64 +192,63 @@ export default function HomeScreen() {
               Recent Stocks
             </Text>
 
-            <FlatList
+            <Carousel
+              loop={false}
+              width={width - 32}
+              height={100}
               data={chunkArray(recentStocksData?.body || [], 6)}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(_, index) => `page-${index}`}
-              getItemLayout={(data, index) => ({
-                length: width - 32,
-                offset: (width - 32) * index,
-                index,
-              })}
-              renderItem={({ item: chunk }) => {
-                return (
-                  <View style={{ width: width - 32 }}>
-                    <View className="flex-row flex-wrap  ">
-                      {chunk.map((stock: any) => {
-                        const isPositive = !stock.netchange.startsWith("-");
-                        return (
-                          <View
-                            key={stock.symbol}
-                            style={{ width: (width - 32) / 3 }}
-                            className="mb-2 "
-                          >
-                            <TouchableOpacity
-                              onPress={() =>
-                                router.push(`/stock/${stock.symbol}`)
-                              }
-                            >
-                              <View className="items-center">
-                                <Text
-                                  className="text-white text-lg"
-                                  style={{
-                                    fontFamily: "RubikBold",
-                                  }}
-                                >
-                                  {stock.symbol}
-                                </Text>
-                                <Text
-                                  className={`text-sm ${
-                                    isPositive
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
-                                  style={{
-                                    fontFamily: "RubikSemiBold",
-                                  }}
-                                >
-                                  {stock.pctchange}
-                                </Text>
-                              </View>
-                            </TouchableOpacity>
+              scrollAnimationDuration={1000}
+              renderItem={({ item: chunk }) => (
+                <View className="flex-row flex-wrap ">
+                  {chunk.map((stock: any) => {
+                    const isPositive = !stock.netchange.startsWith("-");
+                    return (
+                      <View
+                        key={stock.symbol}
+                        style={{ width: (width - 32) / 3 }}
+                        className="mb-2"
+                      >
+                        <TouchableOpacity
+                          onPress={() => router.push(`/stock/${stock.symbol}`)}
+                        >
+                          <View className="flex-row items-center">
+                            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-2">
+                              <Text
+                                className="text-white text-lg"
+                                style={{
+                                  fontFamily: "RubikBold",
+                                }}
+                              >
+                                {stock.symbol.charAt(0)}
+                              </Text>
+                            </View>
+                            <View>
+                              <Text
+                                className="text-white text-lg"
+                                style={{
+                                  fontFamily: "RubikBold",
+                                }}
+                              >
+                                {stock.symbol}
+                              </Text>
+                              <Text
+                                className={`text-sm ${
+                                  isPositive ? "text-green-600" : "text-red-600"
+                                }`}
+                                style={{
+                                  fontFamily: "RubikSemiBold",
+                                }}
+                              >
+                                {stock.pctchange}
+                              </Text>
+                            </View>
                           </View>
-                        );
-                      })}
-                    </View>
-                  </View>
-                );
-              }}
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
             />
           </View>
 
