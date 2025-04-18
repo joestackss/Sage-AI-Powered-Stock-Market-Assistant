@@ -10,13 +10,14 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { LineChart, CandlestickChart } from "react-native-wagmi-charts";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { fetchStockHistory, fetchStockModule } from "../api/marketApi";
 import { useWatchlistStore } from "../store/watchlistStore";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -38,7 +39,6 @@ export default function StockDetailScreen() {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedTimeFrame, setSelectedTimeFrame] = useState(0);
   const [chartType, setChartType] = useState<"line" | "candle">("line");
-  const scrollX = useRef(new Animated.Value(0)).current;
   const { addStock, removeStock, isInWatchlist } = useWatchlistStore();
   const isWatched = isInWatchlist(symbol);
 
@@ -114,9 +114,12 @@ export default function StockDetailScreen() {
             }`}
           >
             <Text
-              className={`font-medium ${
+              className={` ${
                 activeTab === index ? "text-blue-600" : "text-gray-600"
               }`}
+              style={{
+                fontFamily: "RubikMedium",
+              }}
             >
               {tab}
             </Text>
@@ -232,7 +235,14 @@ export default function StockDetailScreen() {
       return (
         <View className="p-4 items-center justify-center">
           <ActivityIndicator size="large" color="#0284c7" />
-          <Text className="mt-2 text-gray-500">Loading company data...</Text>
+          <Text
+            className="mt-2 text-gray-500"
+            style={{
+              fontFamily: "RubikBold",
+            }}
+          >
+            Loading company data...
+          </Text>
         </View>
       );
     }
@@ -244,39 +254,110 @@ export default function StockDetailScreen() {
         {/* Company Description */}
         {profile?.longBusinessSummary && (
           <View className="mb-4">
-            <Text className="text-lg font-semibold mb-2">About</Text>
-            <Text className="text-gray-700">{profile.longBusinessSummary}</Text>
+            <Text
+              className="text-lg mb-2 text-white"
+              style={{
+                fontFamily: "RubikSemiBold",
+              }}
+            >
+              About
+            </Text>
+            <Text
+              className="text-white"
+              style={{
+                fontFamily: "RubikRegular",
+              }}
+            >
+              {profile.longBusinessSummary}
+            </Text>
           </View>
         )}
 
         {/* Company Info */}
         <View className="mb-4">
-          <Text className="text-lg font-semibold mb-2">Company Info</Text>
+          <Text
+            className="text-lg text-white mb-2"
+            style={{
+              fontFamily: "RubikBold",
+            }}
+          >
+            Company Info
+          </Text>
           <View className="bg-white rounded-lg p-4 shadow-sm">
             {profile?.sector && (
               <View className="flex-row justify-between py-2 border-b border-gray-100">
-                <Text className="text-gray-500">Sector</Text>
-                <Text className="font-medium">{profile.sector}</Text>
+                <Text
+                  className="text-gray-500"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  Sector
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
+                  {profile.sector}
+                </Text>
               </View>
             )}
             {profile?.industry && (
               <View className="flex-row justify-between py-2 border-b border-gray-100">
-                <Text className="text-gray-500">Industry</Text>
-                <Text className="font-medium">{profile.industry}</Text>
+                <Text
+                  className="text-gray-500"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  Industry
+                </Text>
+                <Text
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
+                  {profile.industry}
+                </Text>
               </View>
             )}
             {profile?.fullTimeEmployees && (
               <View className="flex-row justify-between py-2 border-b border-gray-100">
-                <Text className="text-gray-500">Employees</Text>
-                <Text className="font-medium">
+                <Text
+                  className="text-gray-500"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  Employees
+                </Text>
+                <Text
+                  className="font-medium"
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
                   {profile.fullTimeEmployees.toLocaleString()}
                 </Text>
               </View>
             )}
             {profile?.website && (
               <View className="flex-row justify-between py-2">
-                <Text className="text-gray-500">Website</Text>
-                <Text className="font-medium text-blue-600">
+                <Text
+                  className="text-gray-500"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  Website
+                </Text>
+                <Text
+                  className="font-medium text-blue-600"
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
                   {profile.website
                     .replace("http://", "")
                     .replace("https://", "")}
@@ -289,7 +370,14 @@ export default function StockDetailScreen() {
         {/* Company Officers */}
         {profile?.companyOfficers && profile.companyOfficers.length > 0 && (
           <View className="mb-4">
-            <Text className="text-lg font-semibold mb-2">Key Executives</Text>
+            <Text
+              className="text-lg text-white mb-2"
+              style={{
+                fontFamily: "RubikBold",
+              }}
+            >
+              Key Executives
+            </Text>
             <View className="bg-white rounded-lg p-4 shadow-sm">
               {profile.companyOfficers.map((officer, index) => (
                 <View
@@ -300,10 +388,29 @@ export default function StockDetailScreen() {
                       : ""
                   }`}
                 >
-                  <Text className="font-medium">{officer.name}</Text>
-                  <Text className="text-gray-500">{officer.title}</Text>
+                  <Text
+                    style={{
+                      fontFamily: "RubikSemiBold",
+                    }}
+                    className="text-lg"
+                  >
+                    {officer.name}
+                  </Text>
+                  <Text
+                    className="text-gray-500"
+                    style={{
+                      fontFamily: "RubikMedium",
+                    }}
+                  >
+                    {officer.title}
+                  </Text>
                   {officer.totalPay && (
-                    <Text className="text-gray-600">
+                    <Text
+                      className="text-gray-600"
+                      style={{
+                        fontFamily: "RubikSemiBold",
+                      }}
+                    >
                       Total Pay: {officer.totalPay.fmt}
                     </Text>
                   )}
@@ -329,8 +436,20 @@ export default function StockDetailScreen() {
   const renderFinancialsTab = () => {
     return (
       <View className="p-4 items-center justify-center h-64">
-        <Text className="text-gray-500">Financial data would go here...</Text>
-        <Text className="text-gray-500 mt-2">
+        <Text
+          className="text-white"
+          style={{
+            fontFamily: "RubikSemiBold",
+          }}
+        >
+          Financial data would go here...
+        </Text>
+        <Text
+          className="text-white mt-2 text-center"
+          style={{
+            fontFamily: "RubikSemiBold",
+          }}
+        >
           Consider using the earnings and financial data endpoints
         </Text>
       </View>
@@ -340,70 +459,86 @@ export default function StockDetailScreen() {
   // Main loading state
   if (isHistoryLoading && isProfileLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <ActivityIndicator size="large" color="#0284c7" />
-        <Text className="mt-4 text-gray-600">Loading stock data...</Text>
+      <View className="flex-1 justify-center items-center bg-blue-900">
+        <ActivityIndicator size="large" color="white" />
+        <Text
+          className="mt-4 text-white"
+          style={{
+            fontFamily: "RubikBold",
+          }}
+        >
+          Loading stock data...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <StatusBar barStyle="dark-content" />
-      <Stack.Screen
-        options={{
-          headerTitle: historyData?.meta?.shortName || symbol,
-          headerRight: () => (
-            <View className="flex-row">
-              <Pressable className="mx-2" onPress={handleWatchlistPress}>
-                <Ionicons
-                  name={isWatched ? "star" : "star-outline"}
-                  size={24}
-                  color={isWatched ? "#fbbf24" : "#0284c7"}
-                />
-              </Pressable>
-              <Pressable className="mx-2">
-                <Ionicons name="share-outline" size={24} color="#0284c7" />
-              </Pressable>
-            </View>
-          ),
-        }}
-      />
+    <View className="flex-1 ">
+      <LinearGradient
+        colors={["#00194b", "#0C0C0C"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="h-full"
+      >
+        <StatusBar barStyle="dark-content" />
 
-      <ScrollView>
-        {/* Stock Price Header */}
-        <View className="bg-white p-4 mb-4">
-          <Text className="text-3xl font-bold">
-            $
-            {processedChartData.length > 0
-              ? processedChartData[processedChartData.length - 1].value.toFixed(
-                  2
-                )
-              : "--"}
-          </Text>
-
-          <View className="flex-row items-center mt-1">
-            <Text
-              className={`text-lg ${
-                priceChangeData.isPositive ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {priceChangeData.isPositive ? "+" : ""}
-              {priceChangeData.change.toFixed(2)}(
-              {priceChangeData.isPositive ? "+" : ""}
-              {priceChangeData.percentChange.toFixed(2)}%)
-            </Text>
-          </View>
+        <View className="pt-12 px-4 flex-row">
+          <Pressable
+            className="mx-2 bg-white rounded-full p-1"
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#0284c7" />
+          </Pressable>
         </View>
 
-        {/* Tab Bar */}
-        {renderTabBar()}
+        <View className="h-full px-4 ">
+          <ScrollView>
+            {/* Stock Price Header */}
+            <View className=" p-4 mb-4">
+              <Text
+                className="text-3xl font-bold text-white"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                $
+                {processedChartData.length > 0
+                  ? processedChartData[
+                      processedChartData.length - 1
+                    ].value.toFixed(2)
+                  : "--"}
+              </Text>
 
-        {/* Tab Content */}
-        {activeTab === 0 && renderOverviewTab()}
-        {activeTab === 1 && renderChartTab()}
-        {activeTab === 2 && renderFinancialsTab()}
-      </ScrollView>
+              <View className="flex-row items-center mt-1">
+                <Text
+                  className={`text-lg ${
+                    priceChangeData.isPositive
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                  style={{
+                    fontFamily: "RubikSemiBold",
+                  }}
+                >
+                  {priceChangeData.isPositive ? "+" : ""}
+                  {priceChangeData.change.toFixed(2)}(
+                  {priceChangeData.isPositive ? "+" : ""}
+                  {priceChangeData.percentChange.toFixed(2)}%)
+                </Text>
+              </View>
+            </View>
+
+            {/* Tab Bar */}
+            {renderTabBar()}
+
+            {/* Tab Content */}
+            {activeTab === 0 && renderOverviewTab()}
+            {activeTab === 1 && renderChartTab()}
+            {activeTab === 2 && renderFinancialsTab()}
+          </ScrollView>
+        </View>
+      </LinearGradient>
     </View>
   );
 }

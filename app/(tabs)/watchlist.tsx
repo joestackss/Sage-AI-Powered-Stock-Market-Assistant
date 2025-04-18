@@ -1,34 +1,27 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { useWatchlistStore } from "../store/watchlistStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStockQuotes } from "../api/marketApi";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const WatchlistScreen = () => {
   const { stocks, removeStock } = useWatchlistStore();
 
-  const { data: quotes, isLoading } = useQuery({
+  const { data: quotes, isPending: isLoading } = useQuery({
     queryKey: ["watchlist-quotes", stocks],
     queryFn: () => fetchStockQuotes(stocks),
     enabled: stocks.length > 0,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  console.log({ quotes });
-
   const renderRightActions = (symbol: string) => {
     return (
       <TouchableOpacity
-        style={styles.deleteButton}
+        className="bg-red-500 justify-center items-center w-20"
         onPress={() => removeStock(symbol)}
       >
         <Ionicons name="trash-outline" size={24} color="white" />
@@ -63,32 +56,59 @@ const WatchlistScreen = () => {
       <Animated.View
         entering={FadeInRight}
         exiting={FadeOutLeft}
-        style={styles.stockItem}
+        className="mb-2 rounded-lg overflow-hidden"
       >
         <Swipeable renderRightActions={() => renderRightActions(symbol)}>
-          <View style={styles.stockContent}>
+          <View className="bg-white p-4 flex-row justify-between items-center">
             <View>
-              <Text style={styles.symbol}>{symbol}</Text>
-              <Text style={styles.name} numberOfLines={1}>
+              <Text
+                className="text-base"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                {symbol}
+              </Text>
+              <Text
+                className="text-sm text-gray-600"
+                numberOfLines={1}
+                style={{
+                  fontFamily: "RubikMedium",
+                }}
+              >
                 {quote?.shortName || quote?.longName || symbol}
               </Text>
-              <Text style={styles.exchange}>{quote?.fullExchangeName}</Text>
+              <Text
+                className="text-xs text-gray-400"
+                style={{
+                  fontFamily: "RubikMedium",
+                }}
+              >
+                {quote?.fullExchangeName}
+              </Text>
             </View>
-            <View style={styles.priceContainer}>
-              <Text style={styles.price}>
+            <View className="items-end">
+              <Text
+                className="text-base"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
                 ${currentPrice?.toFixed(2) || "0.00"}
               </Text>
               <Text
-                style={[
-                  styles.change,
-                  isPositive ? styles.positiveChange : styles.negativeChange,
-                ]}
+                className={`text-sm ${
+                  isPositive ? "text-green-500" : "text-red-500"
+                }`}
+                style={{
+                  fontFamily: "RubikSemiBold",
+                }}
               >
                 {isPositive ? "+" : ""}
                 {currentChange?.toFixed(2) || "0.00"} (
                 {currentChangePercent?.toFixed(2) || "0.00"}%)
                 {(isPreMarket || isPostMarket) && (
-                  <Text style={styles.marketState}>
+                  <Text className="text-xs text-gray-400">
                     {" "}
                     {isPreMarket ? "Pre" : "Post"}
                   </Text>
@@ -101,114 +121,51 @@ const WatchlistScreen = () => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading watchlist...</Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      {stocks.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Your watchlist is empty</Text>
-          <Text style={styles.emptySubtext}>
-            Add stocks to your watchlist to track them here
-          </Text>
+    <View className="flex-1 bg-gray-100">
+      <LinearGradient
+        colors={["#00194b", "#0C0C0C"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="h-full"
+      >
+        <View className="h-full pt-16 px-4">
+          {stocks.length === 0 ? (
+            <View className="flex-1 justify-center items-center p-4">
+              <Text className="text-lg font-bold mb-2">
+                Your watchlist is empty
+              </Text>
+              <Text className="text-sm text-gray-600 text-center">
+                Add stocks to your watchlist to track them here
+              </Text>
+            </View>
+          ) : (
+            <View>
+              <Text
+                className="text-white text-lg pb-4"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                Watchlist
+              </Text>
+              <FlatList
+                data={stocks}
+                renderItem={renderItem}
+                keyExtractor={(item) => item}
+              />
+            </View>
+          )}
         </View>
-      ) : (
-        <FlatList
-          data={stocks}
-          renderItem={renderItem}
-          keyExtractor={(item) => item}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+
+        {isLoading && (
+          <View className="flex-1 justify-center items-center">
+            <Text>Loading watchlist</Text>
+          </View>
+        )}
+      </LinearGradient>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  listContainer: {
-    padding: 16,
-  },
-  stockItem: {
-    marginBottom: 8,
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  stockContent: {
-    backgroundColor: "white",
-    padding: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  symbol: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  name: {
-    fontSize: 14,
-    color: "#666",
-  },
-  exchange: {
-    fontSize: 12,
-    color: "#999",
-  },
-  priceContainer: {
-    alignItems: "flex-end",
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  change: {
-    fontSize: 14,
-  },
-  positiveChange: {
-    color: "#4CAF50",
-  },
-  negativeChange: {
-    color: "#F44336",
-  },
-  marketState: {
-    fontSize: 12,
-    color: "#999",
-  },
-  deleteButton: {
-    backgroundColor: "#F44336",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 80,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
-});
 
 export default WatchlistScreen;
