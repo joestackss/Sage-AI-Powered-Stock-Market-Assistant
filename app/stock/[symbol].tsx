@@ -492,14 +492,25 @@ export default function StockDetailScreen() {
         end={{ x: 0, y: 1 }}
         className="h-full"
       >
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" />
 
-        <View className="pt-12 px-4 flex-row">
+        <View className="pt-16 px-4 flex-row justify-between items-center">
           <Pressable
             className="mx-2 bg-white rounded-full p-1"
             onPress={() => router.back()}
           >
             <Ionicons name="arrow-back" size={24} color="#0284c7" />
+          </Pressable>
+
+          <Pressable
+            className="mx-2 bg-white rounded-full p-1"
+            onPress={handleWatchlistPress}
+          >
+            <Ionicons
+              name={isWatched ? "star" : "star-outline"}
+              size={24}
+              color={isWatched ? "#fbbf24" : "#0284c7"}
+            />
           </Pressable>
         </View>
 
