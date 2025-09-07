@@ -5,8 +5,6 @@ import {
   ScrollView,
   ActivityIndicator,
   Pressable,
-  StyleSheet,
-  Animated,
   Dimensions,
   StatusBar,
 } from "react-native";
