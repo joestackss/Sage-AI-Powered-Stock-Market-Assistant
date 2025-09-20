@@ -4,6 +4,7 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   stockContext?: StockContext;
+  typingCompleted?: boolean;
 }
 
 export interface StockContext {
@@ -35,6 +36,7 @@ export interface ChatStore {
   setContext: (context: StockContext | undefined) => void;
   clearChat: () => void;
   sendMessage: (content: string, context?: StockContext) => Promise<void>;
+  markTypingCompleted: (messageId: string) => void;
 }
 
 export interface AIAnalysisCard {

@@ -28,6 +28,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   clearChat: () => set({ messages: [], currentContext: undefined }),
 
+  markTypingCompleted: (messageId: string) => {
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        msg.id === messageId ? { ...msg, typingCompleted: true } : msg
+      ),
+    }));
+  },
+
   sendMessage: async (content, context) => {
     const state = get();
 

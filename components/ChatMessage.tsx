@@ -67,8 +67,9 @@ export default function ChatMessage({
             <TypingMarkdown
               text={message.content}
               isUser={isUser}
-              speed={25} // Characters per second
+              speed={250}
               onComplete={() => onTypingComplete?.(message.id)}
+              isAlreadyCompleted={message.typingCompleted}
             />
           ) : (
             <Markdown

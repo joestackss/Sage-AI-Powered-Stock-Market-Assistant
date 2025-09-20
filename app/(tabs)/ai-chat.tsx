@@ -15,8 +15,14 @@ import ChatMessage from "../../components/ChatMessage";
 import ChatInput from "../../components/ChatInput";
 
 export default function AIChatScreen() {
-  const { messages, isLoading, currentContext, sendMessage, clearChat } =
-    useChatStore();
+  const {
+    messages,
+    isLoading,
+    currentContext,
+    sendMessage,
+    clearChat,
+    markTypingCompleted,
+  } = useChatStore();
 
   // console.log("Messages", messages);
   // console.log("Current Context", currentContext);
@@ -47,8 +53,8 @@ export default function AIChatScreen() {
   };
 
   const handleTypingComplete = (messageId: string) => {
-    // Optional: Add any logic you want when typing completes
-    // For example, auto-scroll or analytics tracking
+    // Mark message as typing completed to prevent re-animation
+    markTypingCompleted(messageId);
     console.log("Typing completed for message:", messageId);
   };
 

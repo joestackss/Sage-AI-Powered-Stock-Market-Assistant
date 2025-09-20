@@ -7,6 +7,7 @@ interface TypingMarkdownProps {
   isUser: boolean;
   speed?: number; // Characters per second
   onComplete?: () => void;
+  isAlreadyCompleted?: boolean;
 }
 
 export default function TypingMarkdown({
@@ -14,15 +15,25 @@ export default function TypingMarkdown({
   isUser,
   speed = 30,
   onComplete,
+  isAlreadyCompleted = false,
 }: TypingMarkdownProps) {
-  const [displayedText, setDisplayedText] = useState("");
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [displayedText, setDisplayedText] = useState(
+    isAlreadyCompleted ? text : ""
+  );
+  const [isCompleted, setIsCompleted] = useState(isAlreadyCompleted);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );
   const indexRef = useRef(0);
 
   useEffect(() => {
+    // If already completed, don't start animation
+    if (isAlreadyCompleted) {
+      setDisplayedText(text);
+      setIsCompleted(true);
+      return;
+    }
+
     // Reset state when text changes
     setDisplayedText("");
     setIsCompleted(false);
@@ -51,7 +62,7 @@ export default function TypingMarkdown({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [text, speed, onComplete]);
+  }, [text, speed, onComplete, isAlreadyCompleted]);
 
   // Clean up timeout on unmount
   useEffect(() => {
