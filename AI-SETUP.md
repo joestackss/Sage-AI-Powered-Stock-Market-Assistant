@@ -1,24 +1,24 @@
 # AI Stock Assistant Setup Guide
 
-## OpenAI API Configuration
+## 🆓 Google Gemini AI Configuration (FREE!)
 
-To enable AI features in your stock app, you need to configure the OpenAI API:
+Your app now uses Google's **Gemini 2.0 Flash** - completely free and very powerful!
 
-### 1. Get OpenAI API Key
+### 1. Get FREE Gemini API Key
 
-- Visit [OpenAI Platform](https://platform.openai.com/account/api-keys)
-- Create an account or log in
-- Generate a new API key
+- Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+- Sign in with your Google account
+- Generate a new API key (completely free!)
 
 ### 2. Configure Environment Variable
 
 Create a `.env` file in your project root with:
 
 ```
-EXPO_PUBLIC_OPENAI_API_KEY=your-actual-api-key-here
+EXPO_PUBLIC_GEMINI_API_KEY=your-actual-gemini-key-here
 ```
 
-**Important**: Replace `your-actual-api-key-here` with your real OpenAI API key.
+**Important**: Replace `your-actual-gemini-key-here` with your real Gemini API key.
 
 ### 3. Restart Development Server
 
@@ -82,12 +82,11 @@ The AI is configured with financial education prompts that:
 
 **429 Error (Quota Exceeded)?**
 
-- Visit [OpenAI Billing](https://platform.openai.com/account/billing)
-- Check usage limits and available credits
-- Add payment method or purchase credits
-- Upgrade to paid plan if on free tier
-- Set usage alerts to monitor consumption
+- Check your usage at [Google AI Studio](https://makersuite.google.com/app/apikey)
+- Free tier: 15 requests/minute, 1500 requests/day
+- Wait a few minutes if you hit rate limits
 - App provides helpful fallback messages during quota issues
+- Consider your Gemini Pro 1-month trial for even higher limits!
 
 **Features not working?**
 
@@ -97,20 +96,27 @@ The AI is configured with financial education prompts that:
 
 ## Technology Stack
 
-- **OpenAI GPT-3.5-Turbo**: Conversational AI (faster, cost-effective)
+- **Google Gemini 2.0 Flash**: Latest AI model (completely FREE!)
 - **Zustand**: State management
 - **TypeScript**: Type safety
 - **React Native**: Mobile framework
 - **Expo**: Development platform
 
-## API Usage & Costs
+## 🆓 FREE API Usage & Benefits
 
-**Managing OpenAI Costs:**
+**Why Gemini is Better:**
 
-- GPT-3.5-Turbo: ~$0.002 per 1K tokens (very affordable)
-- Set usage limits in OpenAI dashboard
-- Monitor conversations and token usage
-- Consider implementing daily/monthly limits
+- ✅ **Completely FREE**: 15 requests/minute, 1500/day
+- ✅ **Latest Model**: Gemini 2.0 Flash (newest release)
+- ✅ **Fast Performance**: Optimized for speed
+- ✅ **No Billing Required**: No credit card needed
+- ✅ **Generous Limits**: Perfect for development
+
+**Your 1-Month Gemini Pro Trial:**
+
+- Even higher rate limits
+- Access to advanced features
+- Still completely free for the trial period
 
 **Fallback Features:**
 

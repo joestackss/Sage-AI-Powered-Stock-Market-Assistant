@@ -1,11 +1,12 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { StockContext, AIResponse, FINANCIAL_DISCLAIMER } from "../types/chat";
 
-// Initialize OpenAI client - replace with your API key
-// Note: If you're getting 429 errors, check your OpenAI billing at: https://platform.openai.com/account/billing
-const openai = new OpenAI({
-  apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || "your-openai-api-key-here",
-  dangerouslyAllowBrowser: true, // Required for client-side usage in Expo
+// Initialize Google GenAI client - replace with your API key
+// Get your free API key from: https://makersuite.google.com/app/apikey
+const ai = new GoogleGenAI({
+  apiKey:
+    process.env.EXPO_PUBLIC_GEMINI_API_KEY ||
+    "AIzaSyCuRV0jQACQPYxHiP2M86IrR8uVkBfmyR8",
 });
 
 export const AI_SYSTEM_PROMPT = `You are an AI stock market assistant that provides educational analysis and insights about stocks and financial markets. 
@@ -36,7 +37,7 @@ When analyzing stocks, consider:
 
 Remember: You're an educational tool, not a financial advisor.`;
 
-interface OpenAIRequestOptions {
+interface GeminiRequestOptions {
   userMessage: string;
   stockContext?: StockContext;
   conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
@@ -46,7 +47,7 @@ export async function sendAIRequest({
   userMessage,
   stockContext,
   conversationHistory = [],
-}: OpenAIRequestOptions): Promise<AIResponse> {
+}: GeminiRequestOptions): Promise<AIResponse> {
   try {
     // Build context string from stock data
     let contextString = "";
@@ -71,39 +72,27 @@ Please analyze this stock data and answer the user's question.
 `;
     }
 
-    // Build messages array for OpenAI
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      {
-        role: "system",
-        content: AI_SYSTEM_PROMPT,
-      },
-    ];
+    // Build the conversation prompt for Gemini
+    let fullPrompt = AI_SYSTEM_PROMPT + "\n\n";
 
     // Add conversation history
     conversationHistory.forEach((msg) => {
-      messages.push({
-        role: msg.role,
-        content: msg.content,
-      });
+      fullPrompt += `${msg.role === "user" ? "User" : "Assistant"}: ${
+        msg.content
+      }\n\n`;
     });
 
     // Add current user message with context
-    messages.push({
-      role: "user",
-      content: `${contextString}\n\nUser Question: ${userMessage}`,
-    });
+    fullPrompt += `${contextString}\n\nUser: ${userMessage}\n\nAssistant:`;
 
-    // Make OpenAI API call
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages,
-      max_tokens: 500,
-      temperature: 0.7,
+    // Make Gemini API call using new @google/genai format
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-001",
+      contents: fullPrompt,
     });
 
     const aiMessage =
-      completion.choices[0]?.message?.content ||
-      "Sorry, I could not generate a response.";
+      response.text || "Sorry, I could not generate a response.";
 
     // Extract suggestions from the response (simple keyword matching)
     const suggestions = extractSuggestions(aiMessage, stockContext);
@@ -114,21 +103,20 @@ Please analyze this stock data and answer the user's question.
       relatedStocks: stockContext ? [stockContext.symbol] : undefined,
     };
   } catch (error: any) {
-    console.error("OpenAI API Error:", error);
+    console.error("Gemini API Error:", error);
 
     // Handle specific error types
     let errorMessage =
       "I'm having trouble connecting to the AI service right now.";
 
-    if (error?.status === 429) {
+    if (error?.status === 429 || error?.message?.includes("quota")) {
       errorMessage =
-        "I've reached my usage limit for today. Please try again later or contact support to upgrade the service.";
-    } else if (error?.status === 401) {
+        "I've reached my usage limit for today. Please try again later.";
+    } else if (error?.status === 401 || error?.message?.includes("API_KEY")) {
       errorMessage =
-        "There's an authentication issue with the AI service. Please contact support.";
-    } else if (error?.status === 404) {
-      errorMessage =
-        "The AI model is temporarily unavailable. Please try again later.";
+        "There's an authentication issue with the AI service. Please check your API key.";
+    } else if (error?.status === 403) {
+      errorMessage = "Access denied. Please check your Gemini API permissions.";
     } else if (!navigator.onLine) {
       errorMessage =
         "No internet connection. Please check your network and try again.";

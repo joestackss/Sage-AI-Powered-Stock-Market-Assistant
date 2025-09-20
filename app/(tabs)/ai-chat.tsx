@@ -17,6 +17,13 @@ import ChatInput from "../../components/ChatInput";
 export default function AIChatScreen() {
   const { messages, isLoading, currentContext, sendMessage, clearChat } =
     useChatStore();
+
+  console.log("Messages", messages);
+  console.log("Current Context", currentContext);
+  console.log("Is Loading", isLoading);
+  console.log("Send Message", sendMessage);
+  console.log("Clear Chat", clearChat);
+
   const flatListRef = useRef<FlatList>(null);
 
   // Auto-scroll to bottom when new messages arrive

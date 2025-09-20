@@ -29,21 +29,24 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   clearChat: () => set({ messages: [], currentContext: undefined }),
 
   sendMessage: async (content, context) => {
-    const state = get();
+    const { addMessage, setLoading, currentContext, messages } = get();
 
     // Add user message immediately
-    state.addMessage({
+    addMessage({
       role: "user",
       content,
-      stockContext: context || state.currentContext,
+      stockContext: context || currentContext,
     });
 
     // Set loading state
-    state.setLoading(true);
+    setLoading(true);
 
     try {
+      // Get updated state after adding user message
+      const updatedState = get();
+
       // Prepare conversation history for context
-      const conversationHistory = state.messages
+      const conversationHistory = updatedState.messages
         .slice(-6) // Last 3 exchanges (6 messages)
         .map((msg) => ({
           role: msg.role as "user" | "assistant",
@@ -53,27 +56,27 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Send request to AI service
       const aiResponse = await sendAIRequest({
         userMessage: content,
-        stockContext: context || state.currentContext,
+        stockContext: context || currentContext,
         conversationHistory,
       });
 
       // Add AI response
-      state.addMessage({
+      addMessage({
         role: "assistant",
         content: aiResponse.message,
-        stockContext: context || state.currentContext,
+        stockContext: context || currentContext,
       });
     } catch (error) {
       console.error("Error sending AI message:", error);
 
       // Add error message
-      state.addMessage({
+      addMessage({
         role: "assistant",
         content:
           "I'm sorry, I encountered an error processing your request. Please try again later.\n\nThis analysis is for educational purposes only and should not be considered as financial advice. Always consult with a qualified financial advisor before making investment decisions.",
       });
     } finally {
-      state.setLoading(false);
+      setLoading(false);
     }
   },
 }));
