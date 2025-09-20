@@ -46,8 +46,14 @@ export default function AIChatScreen() {
     ]);
   };
 
+  const handleTypingComplete = (messageId: string) => {
+    // Optional: Add any logic you want when typing completes
+    // For example, auto-scroll or analytics tracking
+    console.log("Typing completed for message:", messageId);
+  };
+
   const renderMessage = ({ item }: { item: any }) => (
-    <ChatMessage message={item} />
+    <ChatMessage message={item} onTypingComplete={handleTypingComplete} />
   );
 
   const renderEmptyState = () => (

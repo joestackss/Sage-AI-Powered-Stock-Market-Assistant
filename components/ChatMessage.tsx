@@ -2,17 +2,20 @@ import React from "react";
 import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Markdown from "react-native-markdown-display";
+import TypingMarkdown from "./TypingMarkdown";
 import { ChatMessage as ChatMessageType } from "../types/chat";
 import { formatDistanceToNow } from "date-fns";
 
 interface ChatMessageProps {
   message: ChatMessageType;
   onSuggestionPress?: (suggestion: string) => void;
+  onTypingComplete?: (messageId: string) => void;
 }
 
 export default function ChatMessage({
   message,
   onSuggestionPress,
+  onTypingComplete,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
@@ -60,50 +63,59 @@ export default function ChatMessage({
           )}
 
           {/* Message Content */}
-          <Markdown
-            style={{
-              body: {
-                color: isUser ? "white" : "#1f2937",
-                fontFamily: "RubikRegular",
-                fontSize: 14,
-                lineHeight: 20,
-                marginTop: 0,
-                marginBottom: 0,
-              },
-              paragraph: {
-                marginTop: 0,
-                marginBottom: 8,
-              },
-              strong: {
-                fontFamily: "RubikSemiBold",
-                color: isUser ? "white" : "#1f2937",
-              },
-              em: {
-                fontFamily: "RubikMedium",
-                fontStyle: "italic",
-              },
-              code_inline: {
-                backgroundColor: isUser
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.1)",
-                paddingHorizontal: 4,
-                paddingVertical: 2,
-                borderRadius: 4,
-                fontFamily: "SpaceMono",
-                fontSize: 13,
-              },
-              code_block: {
-                backgroundColor: isUser
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.05)",
-                padding: 8,
-                borderRadius: 8,
-                marginVertical: 4,
-              },
-            }}
-          >
-            {message.content}
-          </Markdown>
+          {isAssistant ? (
+            <TypingMarkdown
+              text={message.content}
+              isUser={isUser}
+              speed={25} // Characters per second
+              onComplete={() => onTypingComplete?.(message.id)}
+            />
+          ) : (
+            <Markdown
+              style={{
+                body: {
+                  color: isUser ? "white" : "#1f2937",
+                  fontFamily: "RubikRegular",
+                  fontSize: 14,
+                  lineHeight: 20,
+                  marginTop: 0,
+                  marginBottom: 0,
+                },
+                paragraph: {
+                  marginTop: 0,
+                  marginBottom: 8,
+                },
+                strong: {
+                  fontFamily: "RubikSemiBold",
+                  color: isUser ? "white" : "#1f2937",
+                },
+                em: {
+                  fontFamily: "RubikMedium",
+                  fontStyle: "italic",
+                },
+                code_inline: {
+                  backgroundColor: isUser
+                    ? "rgba(255,255,255,0.2)"
+                    : "rgba(0,0,0,0.1)",
+                  paddingHorizontal: 4,
+                  paddingVertical: 2,
+                  borderRadius: 4,
+                  fontFamily: "SpaceMono",
+                  fontSize: 13,
+                },
+                code_block: {
+                  backgroundColor: isUser
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.05)",
+                  padding: 8,
+                  borderRadius: 8,
+                  marginVertical: 4,
+                },
+              }}
+            >
+              {message.content}
+            </Markdown>
+          )}
 
           {/* Timestamp */}
           <Text
