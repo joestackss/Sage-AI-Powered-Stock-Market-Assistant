@@ -103,18 +103,6 @@ export default function HomeScreen() {
   return (
     <View className="flex-1">
       <StatusBar barStyle="light-content" />
-      <Stack.Screen
-        options={{
-          headerTitle: "Market Overview",
-          headerLargeTitle: true,
-          headerSearchBarOptions: {
-            placeholder: "Search stocks...",
-            onChangeText: (event) => {
-              console.log(event.nativeEvent.text);
-            },
-          },
-        }}
-      />
 
       <LinearGradient
         colors={["#00194b", "#0C0C0C"]}
@@ -146,291 +134,84 @@ export default function HomeScreen() {
             <View className="w-1/2"></View>
           </View>
 
-          {/* AI Market Insight of the Day */}
-          <View className="mt-4 p-4 rounded-2xl bg-blue-600/20 border border-blue-400/30">
-            <View className="flex-row items-center mb-3">
-              <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-3">
-                <Ionicons name="sparkles" size={16} color="white" />
-              </View>
-              <Text
-                className="text-white text-lg"
-                style={{ fontFamily: "RubikBold" }}
-              >
-                AI Market Insight
-              </Text>
-            </View>
-
-            <Text
-              className="text-white/90 text-sm mb-4"
-              style={{ fontFamily: "RubikRegular" }}
-            >
-              {recentStocksData?.body
-                ? generateMarketInsight(recentStocksData.body)
-                : "Analyzing current market conditions to provide you with insights..."}
-            </Text>
-
-            <TouchableOpacity
-              onPress={() => router.push("/(tabs)/ai-chat")}
-              className="bg-blue-600 rounded-lg px-4 py-2 self-start"
-            >
-              <Text
-                className="text-white text-sm"
-                style={{ fontFamily: "RubikSemiBold" }}
-              >
-                Ask AI About Market Trends
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Recent Stocks Section */}
-          <View className="mt-4 p-4 rounded-2xl bg-blue-900/10 border border-white overflow-hidden">
-            <Text
-              className="text-white text-lg mb-2"
-              style={{
-                fontFamily: "RubikBold",
-              }}
-            >
-              Recent Stocks
-            </Text>
-
-            {isLoadingRecentStocks ? (
-              <View className="h-24 justify-center items-center">
-                <ActivityIndicator size="small" color="white" />
-              </View>
-            ) : (
-              <Carousel
-                loop={false}
-                width={width - 32}
-                height={100}
-                data={chunkArray(recentStocksData?.body || [], 6)}
-                scrollAnimationDuration={1000}
-                renderItem={({ item: chunk }) => (
-                  <View className="flex-row flex-wrap">
-                    {chunk.map((stock: any) => {
-                      const isPositive = !stock.netchange.startsWith("-");
-                      return (
-                        <View
-                          key={stock.symbol}
-                          style={{ width: (width - 32) / 3 }}
-                          className="mb-2"
-                        >
-                          <TouchableOpacity
-                            onPress={() =>
-                              router.push(`/stock/${stock.symbol}`)
-                            }
-                          >
-                            <View className="flex-row items-center">
-                              <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-2">
-                                <Text
-                                  className="text-white text-lg"
-                                  style={{
-                                    fontFamily: "RubikBold",
-                                  }}
-                                >
-                                  {stock.symbol.charAt(0)}
-                                </Text>
-                              </View>
-                              <View>
-                                <Text
-                                  className="text-white text-lg"
-                                  style={{
-                                    fontFamily: "RubikBold",
-                                  }}
-                                >
-                                  {stock.symbol}
-                                </Text>
-                                <Text
-                                  className={`text-sm ${
-                                    isPositive
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
-                                  style={{
-                                    fontFamily: "RubikSemiBold",
-                                  }}
-                                >
-                                  {stock.pctchange}
-                                </Text>
-                              </View>
-                            </View>
-                          </TouchableOpacity>
-                        </View>
-                      );
-                    })}
-                  </View>
-                )}
-              />
-            )}
-          </View>
-
-          {/* Quick AI Actions */}
-          <View className="my-8">
-            <Text
-              className="text-white text-lg mb-4"
-              style={{
-                fontFamily: "RubikBold",
-              }}
-            >
-              Quick AI Actions
-            </Text>
-
-            <View className="flex-row">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 200 }}
+          >
+            {/* AI Market Insight of the Day */}
+            <View className="mt-4 p-4 rounded-2xl bg-blue-600/20 border border-blue-400/30">
               <TouchableOpacity
                 onPress={() => router.push("/(tabs)/ai-chat")}
-                className="flex-1 bg-white/10 rounded-lg p-4 mr-2"
+                className="bg-blue-600 rounded-lg px-4 py-2 self-start"
               >
-                <Ionicons
-                  name="analytics"
-                  size={24}
-                  color="#60a5fa"
-                  className="mb-2"
-                />
                 <Text
                   className="text-white text-sm"
                   style={{ fontFamily: "RubikSemiBold" }}
                 >
-                  Ask AI About These Stocks
-                </Text>
-                <Text
-                  className="text-white/70 text-xs mt-1"
-                  style={{ fontFamily: "RubikRegular" }}
-                >
-                  Get insights on current market leaders
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => router.push("/(tabs)/watchlist")}
-                className="flex-1 bg-white/10 rounded-lg p-4 ml-2"
-              >
-                <Ionicons
-                  name="star"
-                  size={24}
-                  color="#fbbf24"
-                  className="mb-2"
-                />
-                <Text
-                  className="text-white text-sm"
-                  style={{ fontFamily: "RubikSemiBold" }}
-                >
-                  Analyze Watchlist
-                </Text>
-                <Text
-                  className="text-white/70 text-xs mt-1"
-                  style={{ fontFamily: "RubikRegular" }}
-                >
-                  AI portfolio analysis
+                  Ask AI About Market Trends
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
 
-          {/* Market Type Segments */}
-          <View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-4"
-            >
-              {marketTypes.map((type) => (
-                <TouchableOpacity
-                  key={type}
-                  onPress={() => setSelectedMarket(type)}
-                  className={`px-4 py-2 mr-2 rounded-full ${
-                    selectedMarket === type ? "bg-white/20" : "bg-white/10"
-                  }`}
-                >
-                  <Text
-                    className="text-white"
-                    style={{
-                      fontFamily: `${
-                        selectedMarket === type ? "RubikBold" : "RubikMedium"
-                      }`,
-                    }}
-                  >
-                    {type}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+            {/* Recent Stocks Section */}
+            <View className="mt-4 p-4 rounded-2xl bg-blue-900/10 border border-white overflow-hidden">
+              <Text
+                className="text-white text-lg mb-2"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                Stocks
+              </Text>
 
-          {/* Indices Section */}
-          <View>
-            <Text
-              className="text-white text-lg mb-2"
-              style={{
-                fontFamily: "RubikBold",
-              }}
-            >
-              Indices
-            </Text>
-            {isLoadingMarket ? (
-              <View className="h-32 justify-center items-center bg-white/10 rounded-lg">
-                <ActivityIndicator size="small" color="white" />
-              </View>
-            ) : (
-              <Carousel
-                loop={false}
-                width={width - 32}
-                height={160}
-                data={chunkArray(marketData?.body || [], 2)}
-                scrollAnimationDuration={1000}
-                renderItem={({ item: chunk }) => (
-                  <View className="gap-2">
-                    {chunk.map((item: any) => {
-                      const isPositive = !item.netchange.startsWith("-");
-                      return (
-                        <TouchableOpacity
-                          key={item.symbol}
-                          onPress={() => router.push(`/stock/${item.symbol}`)}
-                          className="bg-white/10 rounded-lg p-4"
-                        >
-                          <View className="flex-row items-center justify-between">
-                            <View className="flex-row items-center w-full">
-                              <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-2">
-                                <Text
-                                  className="text-white text-lg"
-                                  style={{
-                                    fontFamily: "RubikBold",
-                                  }}
-                                >
-                                  {item.symbol.charAt(0)}
-                                </Text>
-                              </View>
-                              <View className="flex-row w-[90%] justify-between">
-                                <View className=" w-[70%]">
+              {isLoadingRecentStocks ? (
+                <View className="h-24 justify-center items-center">
+                  <ActivityIndicator size="small" color="white" />
+                </View>
+              ) : (
+                <Carousel
+                  loop={false}
+                  width={width - 32}
+                  height={100}
+                  data={chunkArray(recentStocksData?.body || [], 6)}
+                  scrollAnimationDuration={1000}
+                  renderItem={({ item: chunk }) => (
+                    <View className="flex-row flex-wrap">
+                      {chunk.map((stock: any) => {
+                        const isPositive = !stock.netchange.startsWith("-");
+                        return (
+                          <View
+                            key={stock.symbol}
+                            style={{ width: (width - 32) / 3 }}
+                            className="mb-2"
+                          >
+                            <TouchableOpacity
+                              onPress={() =>
+                                router.push(`/stock/${stock.symbol}`)
+                              }
+                            >
+                              <View className="flex-row items-center">
+                                <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-2">
                                   <Text
                                     className="text-white text-lg"
                                     style={{
                                       fontFamily: "RubikBold",
                                     }}
                                   >
-                                    {item.symbol}
-                                  </Text>
-                                  <Text
-                                    className={`text-sm text-white`}
-                                    style={{
-                                      fontFamily: "RubikMedium",
-                                    }}
-                                  >
-                                    {item.name.length > 25
-                                      ? item.name.slice(0, 25)
-                                      : item.name}
+                                    {stock.symbol.charAt(0)}
                                   </Text>
                                 </View>
-
-                                <View className=" w-[30%] items-end">
+                                <View>
                                   <Text
-                                    style={{
-                                      fontFamily: "RubikSemiBold",
-                                    }}
                                     className="text-white text-lg"
+                                    style={{
+                                      fontFamily: "RubikBold",
+                                    }}
                                   >
-                                    {item.lastsale}
+                                    {stock.symbol}
                                   </Text>
                                   <Text
-                                    className={`text-lg ${
+                                    className={`text-sm ${
                                       isPositive
                                         ? "text-green-600"
                                         : "text-red-600"
@@ -439,20 +220,211 @@ export default function HomeScreen() {
                                       fontFamily: "RubikSemiBold",
                                     }}
                                   >
-                                    {item.pctchange}
+                                    {stock.pctchange}
                                   </Text>
                                 </View>
                               </View>
-                            </View>
+                            </TouchableOpacity>
                           </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                )}
-              />
-            )}
-          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                />
+              )}
+            </View>
+
+            {/* Quick AI Actions */}
+            <View className="my-8">
+              <Text
+                className="text-white text-lg mb-4"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                Quick AI Actions
+              </Text>
+
+              <View className="flex-row">
+                <TouchableOpacity
+                  onPress={() => router.push("/(tabs)/ai-chat")}
+                  className="flex-1 bg-white/10 rounded-lg p-4 mr-2"
+                >
+                  <Ionicons
+                    name="analytics"
+                    size={24}
+                    color="#60a5fa"
+                    className="mb-2"
+                  />
+                  <Text
+                    className="text-white text-sm"
+                    style={{ fontFamily: "RubikSemiBold" }}
+                  >
+                    Ask AI About These Stocks
+                  </Text>
+                  <Text
+                    className="text-white/70 text-xs mt-1"
+                    style={{ fontFamily: "RubikRegular" }}
+                  >
+                    Get insights on current market leaders
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => router.push("/(tabs)/watchlist")}
+                  className="flex-1 bg-white/10 rounded-lg p-4 ml-2"
+                >
+                  <Ionicons
+                    name="star"
+                    size={24}
+                    color="#fbbf24"
+                    className="mb-2"
+                  />
+                  <Text
+                    className="text-white text-sm"
+                    style={{ fontFamily: "RubikSemiBold" }}
+                  >
+                    Analyze Watchlist
+                  </Text>
+                  <Text
+                    className="text-white/70 text-xs mt-1"
+                    style={{ fontFamily: "RubikRegular" }}
+                  >
+                    AI portfolio analysis
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Market Type Segments */}
+            <View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="mb-4"
+              >
+                {marketTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    onPress={() => setSelectedMarket(type)}
+                    className={`px-4 py-2 mr-2 rounded-full ${
+                      selectedMarket === type ? "bg-white/20" : "bg-white/10"
+                    }`}
+                  >
+                    <Text
+                      className="text-white"
+                      style={{
+                        fontFamily: `${
+                          selectedMarket === type ? "RubikBold" : "RubikMedium"
+                        }`,
+                      }}
+                    >
+                      {type}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Indices Section */}
+            <View>
+              <Text
+                className="text-white text-lg mb-2"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                Indices
+              </Text>
+              {isLoadingMarket ? (
+                <View className="h-32 justify-center items-center bg-white/10 rounded-lg">
+                  <ActivityIndicator size="small" color="white" />
+                </View>
+              ) : (
+                <Carousel
+                  loop={false}
+                  width={width - 32}
+                  height={160}
+                  data={chunkArray(marketData?.body || [], 2)}
+                  scrollAnimationDuration={1000}
+                  renderItem={({ item: chunk }) => (
+                    <View className="gap-2 w-[98%]">
+                      {chunk.map((item: any) => {
+                        const isPositive = !item.netchange.startsWith("-");
+                        return (
+                          <TouchableOpacity
+                            key={item.symbol}
+                            onPress={() => router.push(`/stock/${item.symbol}`)}
+                            className="bg-white/10 rounded-lg p-4"
+                          >
+                            <View className="flex-row items-center justify-between">
+                              <View className="flex-row items-center w-full">
+                                <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-2">
+                                  <Text
+                                    className="text-white text-lg"
+                                    style={{
+                                      fontFamily: "RubikBold",
+                                    }}
+                                  >
+                                    {item.symbol.charAt(0)}
+                                  </Text>
+                                </View>
+                                <View className="flex-row w-[90%] justify-between">
+                                  <View className=" w-[70%]">
+                                    <Text
+                                      className="text-white text-lg"
+                                      style={{
+                                        fontFamily: "RubikBold",
+                                      }}
+                                    >
+                                      {item.symbol}
+                                    </Text>
+                                    <Text
+                                      className={`text-sm text-white`}
+                                      style={{
+                                        fontFamily: "RubikMedium",
+                                      }}
+                                    >
+                                      {item.name.length > 25
+                                        ? item.name.slice(0, 25)
+                                        : item.name}
+                                    </Text>
+                                  </View>
+
+                                  <View className=" w-[30%] items-end">
+                                    <Text
+                                      style={{
+                                        fontFamily: "RubikSemiBold",
+                                      }}
+                                      className="text-white text-lg"
+                                    >
+                                      {item.lastsale}
+                                    </Text>
+                                    <Text
+                                      className={`text-lg ${
+                                        isPositive
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }`}
+                                      style={{
+                                        fontFamily: "RubikSemiBold",
+                                      }}
+                                    >
+                                      {item.pctchange}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  )}
+                />
+              )}
+            </View>
+          </ScrollView>
         </View>
       </LinearGradient>
     </View>
