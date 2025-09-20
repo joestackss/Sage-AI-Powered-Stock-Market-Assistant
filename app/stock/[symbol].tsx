@@ -70,12 +70,16 @@ export default function StockDetailScreen() {
     enabled: !!symbol,
   });
 
+  console.log("Stock History Data", historyData);
+
   // Fetch stock profile data
   const { data: profileData, isPending: isProfileLoading } = useQuery({
     queryKey: ["stockModule", symbol, "all"],
     queryFn: () => fetchStockModule(symbol as string, "asset-profile"),
     enabled: !!symbol,
   });
+
+  // console.log("Stock Profile Data", profileData);
 
   // Process chart data
   const processedChartData = React.useMemo(() => {
@@ -92,6 +96,8 @@ export default function StockDetailScreen() {
       volume: data.volume,
     }));
   }, [historyData]);
+
+  // console.log("Processed Chart Data", processedChartData);
 
   // Calculate price change data
   const priceChangeData = React.useMemo(() => {
