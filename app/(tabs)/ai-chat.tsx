@@ -13,6 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useChatStore } from "../store/chatStore";
 import ChatMessage from "../../components/ChatMessage";
 import ChatInput from "../../components/ChatInput";
+import TypingBubble from "../../components/TypingBubble";
 
 export default function AIChatScreen() {
   const {
@@ -201,20 +202,10 @@ export default function AIChatScreen() {
             )}
           </View>
 
-          {/* Loading Indicator */}
+          {/* Loading Indicator - Typing Bubble */}
           {isLoading && (
-            <View className="px-4 py-2 bg-gray-50">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-2">
-                  <Ionicons name="sparkles" size={16} color="white" />
-                </View>
-                <Text
-                  className="text-gray-500 text-sm"
-                  style={{ fontFamily: "RubikMedium" }}
-                >
-                  AI is thinking...
-                </Text>
-              </View>
+            <View className="px-4">
+              <TypingBubble />
             </View>
           )}
 
