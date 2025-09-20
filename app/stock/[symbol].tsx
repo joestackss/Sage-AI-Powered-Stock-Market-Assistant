@@ -19,6 +19,8 @@ import {
   fetchStockQuotes,
 } from "../api/marketApi";
 import { useWatchlistStore } from "../store/watchlistStore";
+import { useChatStore } from "../store/chatStore";
+import { formatStockForAI } from "../../utils/aiService";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -42,6 +44,7 @@ export default function StockDetailScreen() {
   const [selectedTimeFrame, setSelectedTimeFrame] = useState(0);
   const [chartType, setChartType] = useState<"line" | "candle">("line");
   const { addStock, removeStock, isInWatchlist } = useWatchlistStore();
+  const { setContext } = useChatStore();
   const isWatched = isInWatchlist(symbol);
 
   // Fetch stock quote data
@@ -57,6 +60,28 @@ export default function StockDetailScreen() {
     } else {
       addStock(symbol);
     }
+  };
+
+  const handleAskAI = () => {
+    // Format current stock data for AI context
+    if (quoteData?.body?.[0] && processedChartData.length > 0) {
+      const stockContext = formatStockForAI(
+        {
+          symbol,
+          lastsale:
+            processedChartData[processedChartData.length - 1]?.value.toString(),
+          netchange: priceChangeData.change.toString(),
+          pctchange: priceChangeData.percentChange.toFixed(2) + "%",
+          name: quoteData.body[0].longName,
+        },
+        profileData?.body
+      );
+
+      setContext(stockContext);
+    }
+
+    // Navigate to AI chat tab
+    router.push("/(tabs)/ai-chat");
   };
 
   // Fetch stock history data
@@ -578,6 +603,83 @@ export default function StockDetailScreen() {
               </View>
             </View>
 
+            {/* AI Analysis Card */}
+            <View className="mx-4 mb-4 bg-white/10 rounded-xl p-4 border border-white/20">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <Ionicons name="sparkles" size={20} color="#60a5fa" />
+                  <Text
+                    className="text-white text-lg ml-2"
+                    style={{ fontFamily: "RubikBold" }}
+                  >
+                    AI Quick Insights
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={handleAskAI}
+                  className="bg-blue-600 rounded-lg px-3 py-1"
+                >
+                  <Text
+                    className="text-white text-sm"
+                    style={{ fontFamily: "RubikMedium" }}
+                  >
+                    Ask AI
+                  </Text>
+                </Pressable>
+              </View>
+
+              <Text
+                className="text-white/80 text-sm mb-3"
+                style={{ fontFamily: "RubikRegular" }}
+              >
+                Get AI-powered analysis of {symbol} including technical
+                insights, risk assessment, and market context.
+              </Text>
+
+              <View className="flex-row flex-wrap">
+                <Pressable
+                  onPress={() => {
+                    handleAskAI();
+                    // The AI chat will open with context, user can ask this question
+                  }}
+                  className="bg-white/10 rounded-full px-3 py-1 mr-2 mb-2"
+                >
+                  <Text
+                    className="text-white/90 text-xs"
+                    style={{ fontFamily: "RubikMedium" }}
+                  >
+                    Should I buy this?
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    handleAskAI();
+                  }}
+                  className="bg-white/10 rounded-full px-3 py-1 mr-2 mb-2"
+                >
+                  <Text
+                    className="text-white/90 text-xs"
+                    style={{ fontFamily: "RubikMedium" }}
+                  >
+                    What are the risks?
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    handleAskAI();
+                  }}
+                  className="bg-white/10 rounded-full px-3 py-1 mr-2 mb-2"
+                >
+                  <Text
+                    className="text-white/90 text-xs"
+                    style={{ fontFamily: "RubikMedium" }}
+                  >
+                    Compare to competitors
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+
             {/* Tab Bar */}
             {renderTabBar()}
 
@@ -587,6 +689,24 @@ export default function StockDetailScreen() {
             {activeTab === 2 && renderFinancialsTab()}
           </ScrollView>
         </View>
+
+        {/* Floating Action Button - Ask AI About This Stock */}
+        <Pressable
+          onPress={handleAskAI}
+          className="absolute bottom-6 right-6 w-14 h-14 bg-blue-600 rounded-full items-center justify-center shadow-lg"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
+          <Ionicons name="sparkles" size={24} color="white" />
+        </Pressable>
       </LinearGradient>
     </View>
   );

@@ -9,11 +9,11 @@ import {
   StatusBar,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Stack, useRouter, Link } from "expo-router";
-import { fetchMarketTickers, fetchMarketNews } from "../api/marketApi";
+import { Stack, useRouter } from "expo-router";
+import { fetchMarketTickers } from "../api/marketApi";
+import { generateMarketInsight } from "../../utils/aiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { formatDistanceToNow } from "date-fns";
 import Carousel from "react-native-reanimated-carousel";
 
 const { width } = Dimensions.get("window");
@@ -98,24 +98,7 @@ export default function HomeScreen() {
     },
   });
 
-  const { data: newsData, isPending: isLoadingNews } = useQuery({
-    queryKey: ["market-news"],
-    queryFn: () => fetchMarketNews(),
-  });
-
   const marketTypes: MarketType[] = ["STOCKS", "ETF", "MUTUALFUNDS", "FUTURES"];
-
-  const formatNewsTime = (timeString: string) => {
-    try {
-      const date = new Date(timeString);
-      if (!isNaN(date.getTime())) {
-        return formatDistanceToNow(date, { addSuffix: true });
-      }
-    } catch (error) {
-      console.warn("Error parsing date:", error);
-    }
-    return "Just now";
-  };
 
   return (
     <View className="flex-1">
@@ -161,6 +144,42 @@ export default function HomeScreen() {
               </Text>
             </View>
             <View className="w-1/2"></View>
+          </View>
+
+          {/* AI Market Insight of the Day */}
+          <View className="mt-4 p-4 rounded-2xl bg-blue-600/20 border border-blue-400/30">
+            <View className="flex-row items-center mb-3">
+              <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-3">
+                <Ionicons name="sparkles" size={16} color="white" />
+              </View>
+              <Text
+                className="text-white text-lg"
+                style={{ fontFamily: "RubikBold" }}
+              >
+                AI Market Insight
+              </Text>
+            </View>
+
+            <Text
+              className="text-white/90 text-sm mb-4"
+              style={{ fontFamily: "RubikRegular" }}
+            >
+              {recentStocksData?.body
+                ? generateMarketInsight(recentStocksData.body)
+                : "Analyzing current market conditions to provide you with insights..."}
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => router.push("/(tabs)/ai-chat")}
+              className="bg-blue-600 rounded-lg px-4 py-2 self-start"
+            >
+              <Text
+                className="text-white text-sm"
+                style={{ fontFamily: "RubikSemiBold" }}
+              >
+                Ask AI About Market Trends
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Recent Stocks Section */}
@@ -244,76 +263,66 @@ export default function HomeScreen() {
             )}
           </View>
 
-          {/* News Section */}
+          {/* Quick AI Actions */}
           <View className="my-8">
-            <View className="flex-row justify-between items-center mb-2">
-              <Text
-                className="text-white text-lg"
-                style={{
-                  fontFamily: "RubikBold",
-                }}
+            <Text
+              className="text-white text-lg mb-4"
+              style={{
+                fontFamily: "RubikBold",
+              }}
+            >
+              Quick AI Actions
+            </Text>
+
+            <View className="flex-row">
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)/ai-chat")}
+                className="flex-1 bg-white/10 rounded-lg p-4 mr-2"
               >
-                Latest News
-              </Text>
-              <Link href="/news" asChild>
-                <TouchableOpacity className="flex-row items-center">
-                  <Text
-                    className="text-white mr-1"
-                    style={{
-                      fontFamily: "RubikMedium",
-                    }}
-                  >
-                    View All
-                  </Text>
-                  <Ionicons name="arrow-forward" size={16} color="white" />
-                </TouchableOpacity>
-              </Link>
+                <Ionicons
+                  name="analytics"
+                  size={24}
+                  color="#60a5fa"
+                  className="mb-2"
+                />
+                <Text
+                  className="text-white text-sm"
+                  style={{ fontFamily: "RubikSemiBold" }}
+                >
+                  Ask AI About These Stocks
+                </Text>
+                <Text
+                  className="text-white/70 text-xs mt-1"
+                  style={{ fontFamily: "RubikRegular" }}
+                >
+                  Get insights on current market leaders
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)/watchlist")}
+                className="flex-1 bg-white/10 rounded-lg p-4 ml-2"
+              >
+                <Ionicons
+                  name="star"
+                  size={24}
+                  color="#fbbf24"
+                  className="mb-2"
+                />
+                <Text
+                  className="text-white text-sm"
+                  style={{ fontFamily: "RubikSemiBold" }}
+                >
+                  Analyze Watchlist
+                </Text>
+                <Text
+                  className="text-white/70 text-xs mt-1"
+                  style={{ fontFamily: "RubikRegular" }}
+                >
+                  AI portfolio analysis
+                </Text>
+              </TouchableOpacity>
             </View>
-            {isLoadingNews ? (
-              <View className="h-32 justify-center items-center bg-white/10 rounded-lg">
-                <ActivityIndicator size="small" color="white" />
-              </View>
-            ) : (
-              newsData?.body[0] && (
-                <View className="bg-white/10 rounded-lg p-4">
-                  <Text
-                    className="text-white text-lg mb-2"
-                    style={{
-                      fontFamily: "RubikSemiBold",
-                    }}
-                  >
-                    {newsData.body[0].title}
-                  </Text>
-                  <Text
-                    className="text-white/80 mb-2"
-                    numberOfLines={2}
-                    style={{
-                      fontFamily: "RubikMedium",
-                    }}
-                  >
-                    {newsData.body[0].text}
-                  </Text>
-                  <View className="flex-row justify-between items-center">
-                    <Text
-                      className="text-white/60 text-sm"
-                      style={{
-                        fontFamily: "RubikBold",
-                      }}
-                    >
-                      {newsData.body[0].source}
-                    </Text>
-                    <Text
-                      className="text-white/60 text-sm"
-                      style={{
-                        fontFamily: "RubikBold",
-                      }}
-                    >
-                      {formatNewsTime(newsData.body[0].time)}
-                    </Text>
-                  </View>
-                </View>
-              )
-            )}
           </View>
 
           {/* Market Type Segments */}

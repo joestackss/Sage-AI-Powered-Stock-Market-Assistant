@@ -1,15 +1,20 @@
 import React from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import { useWatchlistStore } from "../store/watchlistStore";
+import { useChatStore } from "../store/chatStore";
 import { useQuery } from "@tanstack/react-query";
 import { fetchStockQuotes } from "../api/marketApi";
+import { formatStockForAI } from "../../utils/aiService";
 import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 const WatchlistScreen = () => {
+  const router = useRouter();
   const { stocks, removeStock } = useWatchlistStore();
+  const { setContext } = useChatStore();
 
   const { data: quotes, isPending: isLoading } = useQuery({
     queryKey: ["watchlist-quotes", stocks],
@@ -17,6 +22,32 @@ const WatchlistScreen = () => {
     enabled: stocks.length > 0,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  const handleAnalyzeStock = (symbol: string) => {
+    const quote = quotes?.body?.find((q) => q.symbol === symbol);
+    if (quote) {
+      const stockContext = formatStockForAI(
+        {
+          symbol,
+          lastsale: quote.regularMarketPrice?.toString() || "0",
+          netchange: quote.regularMarketChange?.toString() || "0",
+          pctchange: quote.regularMarketChangePercent?.toFixed(2) + "%" || "0%",
+          name: quote.longName,
+        },
+        // No profile data available here, but AI can still provide analysis
+        undefined
+      );
+
+      setContext(stockContext);
+      router.push("/(tabs)/ai-chat");
+    }
+  };
+
+  const handleAnalyzePortfolio = () => {
+    // Clear context for portfolio analysis
+    setContext(undefined);
+    router.push("/(tabs)/ai-chat");
+  };
 
   const renderRightActions = (symbol: string) => {
     return (
@@ -59,61 +90,79 @@ const WatchlistScreen = () => {
         className="mb-2 rounded-lg overflow-hidden"
       >
         <Swipeable renderRightActions={() => renderRightActions(symbol)}>
-          <View className="bg-white p-4 flex-row justify-between items-center">
-            <View>
-              <Text
-                className="text-base"
-                style={{
-                  fontFamily: "RubikBold",
-                }}
-              >
-                {symbol}
-              </Text>
-              <Text
-                className="text-sm text-gray-600"
-                numberOfLines={1}
-                style={{
-                  fontFamily: "RubikMedium",
-                }}
-              >
-                {quote?.shortName || quote?.longName || symbol}
-              </Text>
-              <Text
-                className="text-xs text-gray-400"
-                style={{
-                  fontFamily: "RubikMedium",
-                }}
-              >
-                {quote?.fullExchangeName}
-              </Text>
+          <View className="bg-white p-4">
+            <View className="flex-row justify-between items-center">
+              <View className="flex-1">
+                <Text
+                  className="text-base"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  {symbol}
+                </Text>
+                <Text
+                  className="text-sm text-gray-600"
+                  numberOfLines={1}
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
+                  {quote?.shortName || quote?.longName || symbol}
+                </Text>
+                <Text
+                  className="text-xs text-gray-400"
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
+                  {quote?.fullExchangeName}
+                </Text>
+              </View>
+              <View className="items-end">
+                <Text
+                  className="text-base"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  ${currentPrice?.toFixed(2) || "0.00"}
+                </Text>
+                <Text
+                  className={`text-sm ${
+                    isPositive ? "text-green-500" : "text-red-500"
+                  }`}
+                  style={{
+                    fontFamily: "RubikSemiBold",
+                  }}
+                >
+                  {isPositive ? "+" : ""}
+                  {currentChange?.toFixed(2) || "0.00"} (
+                  {currentChangePercent?.toFixed(2) || "0.00"}%)
+                  {(isPreMarket || isPostMarket) && (
+                    <Text className="text-xs text-gray-400">
+                      {" "}
+                      {isPreMarket ? "Pre" : "Post"}
+                    </Text>
+                  )}
+                </Text>
+              </View>
             </View>
-            <View className="items-end">
-              <Text
-                className="text-base"
-                style={{
-                  fontFamily: "RubikBold",
-                }}
+
+            {/* AI Analysis Button */}
+            <View className="mt-3 pt-3 border-t border-gray-100">
+              <TouchableOpacity
+                onPress={() => handleAnalyzeStock(symbol)}
+                className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex-row items-center justify-center"
               >
-                ${currentPrice?.toFixed(2) || "0.00"}
-              </Text>
-              <Text
-                className={`text-sm ${
-                  isPositive ? "text-green-500" : "text-red-500"
-                }`}
-                style={{
-                  fontFamily: "RubikSemiBold",
-                }}
-              >
-                {isPositive ? "+" : ""}
-                {currentChange?.toFixed(2) || "0.00"} (
-                {currentChangePercent?.toFixed(2) || "0.00"}%)
-                {(isPreMarket || isPostMarket) && (
-                  <Text className="text-xs text-gray-400">
-                    {" "}
-                    {isPreMarket ? "Pre" : "Post"}
-                  </Text>
-                )}
-              </Text>
+                <Ionicons name="sparkles" size={16} color="#2563eb" />
+                <Text
+                  className="text-blue-600 text-sm ml-2"
+                  style={{ fontFamily: "RubikSemiBold" }}
+                >
+                  Get AI Analysis
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Swipeable>
@@ -147,8 +196,46 @@ const WatchlistScreen = () => {
                   fontFamily: "RubikBold",
                 }}
               >
-                Watchlist
+                Watchlist ({stocks.length})
               </Text>
+
+              {/* AI Portfolio Analysis Card */}
+              <View className="mb-4 bg-white/10 rounded-xl p-4 border border-white/20">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-8 h-8 rounded-full bg-purple-600 items-center justify-center mr-3">
+                    <Ionicons name="analytics" size={16} color="white" />
+                  </View>
+                  <Text
+                    className="text-white text-lg flex-1"
+                    style={{ fontFamily: "RubikBold" }}
+                  >
+                    Portfolio AI Analysis
+                  </Text>
+                </View>
+
+                <Text
+                  className="text-white/80 text-sm mb-4"
+                  style={{ fontFamily: "RubikRegular" }}
+                >
+                  Get comprehensive AI analysis of your entire watchlist
+                  including diversification, risk assessment, and market
+                  outlook.
+                </Text>
+
+                <TouchableOpacity
+                  onPress={handleAnalyzePortfolio}
+                  className="bg-purple-600 rounded-lg px-4 py-3 flex-row items-center justify-center"
+                >
+                  <Ionicons name="sparkles" size={18} color="white" />
+                  <Text
+                    className="text-white text-sm ml-2"
+                    style={{ fontFamily: "RubikSemiBold" }}
+                  >
+                    Analyze My Portfolio
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
               <FlatList
                 data={stocks}
                 renderItem={renderItem}

@@ -33,32 +33,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="news"
+        name="ai-chat"
         options={{
-          tabBarLabel: "News",
+          tabBarLabel: "AI Assistant",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="newspaper" size={size} color={color} />
+            <Ionicons name="chatbubble-ellipses" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="search"
-        options={{
-          tabBarLabel: "Search",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search" size={size} color={color} />
-          ),
-        }}
-      />
-      {/* <Tabs.Screen
-        name="profile"
-        options={{
-          tabBarLabel: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
-      /> */}
     </Tabs>
   );
 }
