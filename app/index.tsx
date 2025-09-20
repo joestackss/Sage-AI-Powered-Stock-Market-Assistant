@@ -19,7 +19,7 @@ export default function WelcomeScreen() {
               fontFamily: "RubikBold",
             }}
           >
-            StockSense
+            Sage Ai
           </Text>
           <Text
             className="text-lg text-white mb-8 text-center"
@@ -27,7 +27,8 @@ export default function WelcomeScreen() {
               fontFamily: "RubikBold",
             }}
           >
-            Your personal stock market companion
+            Your intelligent stock analysis companion to help you make informed
+            decisions.
           </Text>
           <Link href="/(tabs)" asChild>
             <TouchableOpacity className="bg-blue-600 px-8 py-4 rounded-full">

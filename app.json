@@ -1,40 +1,36 @@
 {
   "expo": {
-    "name": "StockSense",
-    "slug": "stocksense",
+    "name": "Sage Ai",
+    "slug": "safeai",
     "description": "Your personal stock market companion - track stocks, get insights, and stay informed with real-time market data.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "stocksense",
+    "scheme": "sageai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourcompany.stocksense",
-      "buildNumber": "1.0.0",
+      "bundleIdentifier": "com.stackstech.sageai",
       "infoPlist": {
-        "NSCameraUsageDescription": "This app uses camera to scan QR codes for stock symbols.",
-        "NSPhotoLibraryUsageDescription": "This app accesses photo library to save stock charts."
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.yourcompany.stocksense",
-      "versionCode": 1,
+      "package": "com.stackstech.sageai",
+
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": [
-        "android.permission.INTERNET",
-        "android.permission.ACCESS_NETWORK_STATE"
-      ]
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "bundler": "metro",
@@ -47,8 +43,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
-      }
-    }
+        "projectId": "195652cc-9b87-4bdf-baea-c7be6f9272c7"
+      },
+      "router": {}
+    },
+    "owner": "stackstech"
   }
 }

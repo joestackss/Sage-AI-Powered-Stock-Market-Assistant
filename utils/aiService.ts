@@ -1,12 +1,21 @@
 import { GoogleGenAI } from "@google/genai";
 import { StockContext, AIResponse, FINANCIAL_DISCLAIMER } from "../types/chat";
+import Constants from "expo-constants";
 
-// Initialize Google GenAI client - replace with your API key
+// Initialize Google GenAI client
 // Get your free API key from: https://makersuite.google.com/app/apikey
+const getApiKey = () => {
+  // For development (Expo Go), use environment variable
+  if (__DEV__ && process.env.EXPO_PUBLIC_GEMINI_API_KEY) {
+    return process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  }
+
+  // For production builds (EAS), use config.extra
+  return Constants.expoConfig?.extra?.GEMINI_API_KEY;
+};
+
 const ai = new GoogleGenAI({
-  apiKey:
-    process.env.EXPO_PUBLIC_GEMINI_API_KEY ||
-    "AIzaSyCuRV0jQACQPYxHiP2M86IrR8uVkBfmyR8",
+  apiKey: getApiKey(),
 });
 
 export const AI_SYSTEM_PROMPT = `You are an AI stock market assistant that provides educational analysis and insights about stocks and financial markets. 
