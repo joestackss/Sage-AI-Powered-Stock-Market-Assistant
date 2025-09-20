@@ -70,7 +70,7 @@ export default function StockDetailScreen() {
     enabled: !!symbol,
   });
 
-  console.log("Stock History Data", historyData);
+  // console.log("Stock History Data", historyData);
 
   // Fetch stock profile data
   const { data: profileData, isPending: isProfileLoading } = useQuery({
