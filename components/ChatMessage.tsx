@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Markdown from "react-native-markdown-display";
 import { ChatMessage as ChatMessageType } from "../types/chat";
 import { formatDistanceToNow } from "date-fns";
 
@@ -59,12 +60,50 @@ export default function ChatMessage({
           )}
 
           {/* Message Content */}
-          <Text
-            className={`${isUser ? "text-white" : "text-gray-800"} leading-5`}
-            style={{ fontFamily: "RubikRegular" }}
+          <Markdown
+            style={{
+              body: {
+                color: isUser ? "white" : "#1f2937",
+                fontFamily: "RubikRegular",
+                fontSize: 14,
+                lineHeight: 20,
+                marginTop: 0,
+                marginBottom: 0,
+              },
+              paragraph: {
+                marginTop: 0,
+                marginBottom: 8,
+              },
+              strong: {
+                fontFamily: "RubikSemiBold",
+                color: isUser ? "white" : "#1f2937",
+              },
+              em: {
+                fontFamily: "RubikMedium",
+                fontStyle: "italic",
+              },
+              code_inline: {
+                backgroundColor: isUser
+                  ? "rgba(255,255,255,0.2)"
+                  : "rgba(0,0,0,0.1)",
+                paddingHorizontal: 4,
+                paddingVertical: 2,
+                borderRadius: 4,
+                fontFamily: "SpaceMono",
+                fontSize: 13,
+              },
+              code_block: {
+                backgroundColor: isUser
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.05)",
+                padding: 8,
+                borderRadius: 8,
+                marginVertical: 4,
+              },
+            }}
           >
             {message.content}
-          </Text>
+          </Markdown>
 
           {/* Timestamp */}
           <Text
