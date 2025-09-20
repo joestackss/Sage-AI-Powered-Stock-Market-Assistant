@@ -29,17 +29,21 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   clearChat: () => set({ messages: [], currentContext: undefined }),
 
   sendMessage: async (content, context) => {
-    const { addMessage, setLoading, currentContext, messages } = get();
+    const state = get();
 
     // Add user message immediately
-    addMessage({
+    const userMessage: ChatMessage = {
       role: "user",
       content,
-      stockContext: context || currentContext,
-    });
+      stockContext: context || state.currentContext,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date(),
+    };
 
-    // Set loading state
-    setLoading(true);
+    set((prevState) => ({
+      messages: [...prevState.messages, userMessage],
+      isLoading: true,
+    }));
 
     try {
       // Get updated state after adding user message
@@ -56,27 +60,39 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       // Send request to AI service
       const aiResponse = await sendAIRequest({
         userMessage: content,
-        stockContext: context || currentContext,
+        stockContext: context || state.currentContext,
         conversationHistory,
       });
 
       // Add AI response
-      addMessage({
+      const assistantMessage: ChatMessage = {
         role: "assistant",
         content: aiResponse.message,
-        stockContext: context || currentContext,
-      });
+        stockContext: context || state.currentContext,
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        timestamp: new Date(),
+      };
+
+      set((prevState) => ({
+        messages: [...prevState.messages, assistantMessage],
+        isLoading: false,
+      }));
     } catch (error) {
       console.error("Error sending AI message:", error);
 
       // Add error message
-      addMessage({
+      const errorMessage: ChatMessage = {
         role: "assistant",
         content:
           "I'm sorry, I encountered an error processing your request. Please try again later.\n\nThis analysis is for educational purposes only and should not be considered as financial advice. Always consult with a qualified financial advisor before making investment decisions.",
-      });
-    } finally {
-      setLoading(false);
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        timestamp: new Date(),
+      };
+
+      set((prevState) => ({
+        messages: [...prevState.messages, errorMessage],
+        isLoading: false,
+      }));
     }
   },
 }));

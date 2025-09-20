@@ -135,89 +135,84 @@ export default function AIChatScreen() {
         end={{ x: 0, y: 1 }}
         className="flex-1"
       >
-        {/* Header */}
-        <View className="pt-16 pb-4 px-4">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-blue-600 items-center justify-center mr-3">
-                <Ionicons name="sparkles" size={20} color="white" />
-              </View>
-              <View>
-                <Text
-                  className="text-white text-lg"
-                  style={{ fontFamily: "RubikBold" }}
-                >
-                  AI Assistant
-                </Text>
-                {currentContext && (
+        <View className="h-full">
+          {/* Header */}
+          <View className="pt-16 pb-4 px-4 ">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <View className="w-10 h-10 rounded-full bg-blue-600 items-center justify-center mr-3">
+                  <Ionicons name="sparkles" size={20} color="white" />
+                </View>
+                <View>
                   <Text
-                    className="text-white/70 text-sm"
-                    style={{ fontFamily: "RubikMedium" }}
+                    className="text-white text-lg"
+                    style={{ fontFamily: "RubikBold" }}
                   >
-                    Analyzing: {currentContext.symbol}
+                    AI Assistant
                   </Text>
-                )}
+                  {currentContext && (
+                    <Text
+                      className="text-white/70 text-sm"
+                      style={{ fontFamily: "RubikMedium" }}
+                    >
+                      Analyzing: {currentContext.symbol}
+                    </Text>
+                  )}
+                </View>
               </View>
-            </View>
 
-            {messages.length > 0 && (
-              <TouchableOpacity
-                onPress={handleClearChat}
-                className="w-10 h-10 rounded-full bg-white/10 items-center justify-center"
-              >
-                <Ionicons name="trash-outline" size={18} color="white" />
-              </TouchableOpacity>
+              {messages.length > 0 && (
+                <TouchableOpacity
+                  onPress={handleClearChat}
+                  className="w-10 h-10 rounded-full bg-white/10 items-center justify-center"
+                >
+                  <Ionicons name="trash-outline" size={18} color="white" />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          {/* Messages */}
+          <View className="flex-1">
+            {messages.length === 0 ? (
+              renderEmptyState()
+            ) : (
+              <FlatList
+                ref={flatListRef}
+                data={messages}
+                renderItem={renderMessage}
+                keyExtractor={(item) => item.id}
+                className="flex-1 px-4 py-4"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
             )}
           </View>
-        </View>
 
-        {/* Messages */}
-        <View className="flex-1 bg-gray-50">
-          {messages.length === 0 ? (
-            <LinearGradient
-              colors={["#00194b", "#0C0C0C"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              className="flex-1"
-            >
-              {renderEmptyState()}
-            </LinearGradient>
-          ) : (
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              renderItem={renderMessage}
-              keyExtractor={(item) => item.id}
-              className="flex-1 px-4 py-4"
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
-          )}
-        </View>
-
-        {/* Loading Indicator */}
-        {isLoading && (
-          <View className="px-4 py-2 bg-gray-50">
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-2">
-                <Ionicons name="sparkles" size={16} color="white" />
+          {/* Loading Indicator */}
+          {isLoading && (
+            <View className="px-4 py-2 bg-gray-50">
+              <View className="flex-row items-center">
+                <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-2">
+                  <Ionicons name="sparkles" size={16} color="white" />
+                </View>
+                <Text
+                  className="text-gray-500 text-sm"
+                  style={{ fontFamily: "RubikMedium" }}
+                >
+                  AI is thinking...
+                </Text>
               </View>
-              <Text
-                className="text-gray-500 text-sm"
-                style={{ fontFamily: "RubikMedium" }}
-              >
-                AI is thinking...
-              </Text>
             </View>
-          </View>
-        )}
+          )}
 
-        {/* Chat Input */}
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          currentStock={currentContext?.symbol}
-        />
+          {/* Chat Input */}
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            currentStock={currentContext?.symbol}
+          />
+        </View>
       </LinearGradient>
     </View>
   );
