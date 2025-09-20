@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useWatchlistStore } from "../store/watchlistStore";
 import { useChatStore } from "../store/chatStore";
@@ -199,48 +205,44 @@ const WatchlistScreen = () => {
                 Watchlist ({stocks.length})
               </Text>
 
-              {/* AI Portfolio Analysis Card */}
-              <View className="mb-4 bg-white/10 rounded-xl p-4 border border-white/20">
-                <View className="flex-row items-center mb-3">
-                  <View className="w-8 h-8 rounded-full bg-purple-600 items-center justify-center mr-3">
-                    <Ionicons name="analytics" size={16} color="white" />
-                  </View>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 200 }}
+              >
+                {/* AI Portfolio Analysis Card */}
+                <View className="mb-4 bg-white/10 rounded-xl p-4 border border-white/20">
                   <Text
-                    className="text-white text-lg flex-1"
-                    style={{ fontFamily: "RubikBold" }}
+                    className="text-white/80 text-sm mb-4"
+                    style={{ fontFamily: "RubikRegular" }}
                   >
-                    Portfolio AI Analysis
+                    Get comprehensive AI analysis of your entire watchlist
+                    including diversification, risk assessment, and market
+                    outlook.
                   </Text>
+
+                  <TouchableOpacity
+                    onPress={handleAnalyzePortfolio}
+                    className="bg-purple-600 rounded-lg px-4 py-3 flex-row items-center justify-center"
+                  >
+                    <Ionicons name="sparkles" size={18} color="white" />
+                    <Text
+                      className="text-white text-sm ml-2"
+                      style={{ fontFamily: "RubikSemiBold" }}
+                    >
+                      Analyze My Portfolio
+                    </Text>
+                  </TouchableOpacity>
                 </View>
 
-                <Text
-                  className="text-white/80 text-sm mb-4"
-                  style={{ fontFamily: "RubikRegular" }}
-                >
-                  Get comprehensive AI analysis of your entire watchlist
-                  including diversification, risk assessment, and market
-                  outlook.
-                </Text>
-
-                <TouchableOpacity
-                  onPress={handleAnalyzePortfolio}
-                  className="bg-purple-600 rounded-lg px-4 py-3 flex-row items-center justify-center"
-                >
-                  <Ionicons name="sparkles" size={18} color="white" />
-                  <Text
-                    className="text-white text-sm ml-2"
-                    style={{ fontFamily: "RubikSemiBold" }}
-                  >
-                    Analyze My Portfolio
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <FlatList
-                data={stocks}
-                renderItem={renderItem}
-                keyExtractor={(item) => item}
-              />
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  nestedScrollEnabled={true}
+                  scrollEnabled={false}
+                  data={stocks}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item}
+                />
+              </ScrollView>
             </View>
           )}
         </View>

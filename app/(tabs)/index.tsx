@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Dimensions,
   StatusBar,
+  Pressable,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
@@ -131,28 +132,30 @@ export default function HomeScreen() {
                 Derek Shawn
               </Text>
             </View>
-            <View className="w-1/2"></View>
+            <View className="w-1/2 items-end">
+              <Pressable
+                onPress={() => router.push("/(tabs)/ai-chat")}
+                className="w-12 h-12 bg-blue-600 rounded-full items-center justify-center shadow-lg flex-row px-4"
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
+                }}
+              >
+                <Ionicons name="sparkles" size={16} color="white" />
+              </Pressable>
+            </View>
           </View>
 
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 200 }}
           >
-            {/* AI Market Insight of the Day */}
-            <View className="mt-4 p-4 rounded-2xl bg-blue-600/20 border border-blue-400/30">
-              <TouchableOpacity
-                onPress={() => router.push("/(tabs)/ai-chat")}
-                className="bg-blue-600 rounded-lg px-4 py-2 self-start"
-              >
-                <Text
-                  className="text-white text-sm"
-                  style={{ fontFamily: "RubikSemiBold" }}
-                >
-                  Ask AI About Market Trends
-                </Text>
-              </TouchableOpacity>
-            </View>
-
             {/* Recent Stocks Section */}
             <View className="mt-4 p-4 rounded-2xl bg-blue-900/10 border border-white overflow-hidden">
               <Text

@@ -36,13 +36,12 @@ const timeFrames = [
 ];
 
 // Tabs for the detail view
-const TABS = ["Overview", "Chart", "Financials"];
+const TABS = ["Overview", "Financials"];
 
 export default function StockDetailScreen() {
   const { symbol } = useLocalSearchParams<{ symbol: string }>();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedTimeFrame, setSelectedTimeFrame] = useState(0);
-  const [chartType, setChartType] = useState<"line" | "candle">("line");
   const [showFullSummary, setShowFullSummary] = useState(false);
   const { addStock, removeStock, isInWatchlist } = useWatchlistStore();
   const { setContext } = useChatStore();
@@ -168,107 +167,6 @@ export default function StockDetailScreen() {
         ))}
       </View>
     );
-  };
-
-  const renderTimeFrameSelector = () => {
-    return (
-      <View className="flex-row justify-around bg-white py-2 mb-4">
-        {timeFrames.map((tf, index) => (
-          <Pressable
-            key={tf.label}
-            onPress={() => setSelectedTimeFrame(index)}
-            className={`px-3 py-1 rounded-full ${
-              selectedTimeFrame === index ? "bg-blue-100" : "bg-transparent"
-            }`}
-          >
-            <Text
-              className={`font-medium ${
-                selectedTimeFrame === index ? "text-blue-600" : "text-gray-600"
-              }`}
-            >
-              {tf.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    );
-  };
-
-  const renderChartTypeSelector = () => {
-    return (
-      <View className="flex-row justify-end bg-white px-4 pb-2">
-        <Pressable
-          onPress={() => setChartType("line")}
-          className={`px-3 py-1 rounded-l-full ${
-            chartType === "line" ? "bg-blue-600" : "bg-gray-200"
-          }`}
-        >
-          <Text
-            className={`font-medium ${
-              chartType === "line" ? "text-white" : "text-gray-700"
-            }`}
-          >
-            Line
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setChartType("candle")}
-          className={`px-3 py-1 rounded-r-full ${
-            chartType === "candle" ? "bg-blue-600" : "bg-gray-200"
-          }`}
-        >
-          <Text
-            className={`font-medium ${
-              chartType === "candle" ? "text-white" : "text-gray-700"
-            }`}
-          >
-            Candle
-          </Text>
-        </Pressable>
-      </View>
-    );
-  };
-
-  const renderChart = () => {
-    if (isHistoryLoading || processedChartData.length === 0) {
-      return (
-        <View className="h-64 items-center justify-center bg-gray-50">
-          <ActivityIndicator size="large" color="#0284c7" />
-          <Text className="mt-2 text-gray-500">Loading chart data...</Text>
-        </View>
-      );
-    }
-
-    const chartColor = priceChangeData.isPositive ? "#22c55e" : "#ef4444";
-
-    if (chartType === "line") {
-      return (
-        <GestureHandlerRootView>
-          <LineChart.Provider data={processedChartData}>
-            <LineChart height={260} width={SCREEN_WIDTH}>
-              <LineChart.Path color={chartColor} width={2}>
-                <LineChart.Gradient />
-              </LineChart.Path>
-              <LineChart.CursorCrosshair color={chartColor} />
-            </LineChart>
-          </LineChart.Provider>
-        </GestureHandlerRootView>
-      );
-    } else {
-      return (
-        <GestureHandlerRootView>
-          <CandlestickChart.Provider data={processedChartData}>
-            <CandlestickChart height={260} width={SCREEN_WIDTH}>
-              <CandlestickChart.Candles
-                positiveColor="#22c55e"
-                negativeColor="#ef4444"
-              />
-              <CandlestickChart.Crosshair />
-            </CandlestickChart>
-          </CandlestickChart.Provider>
-        </GestureHandlerRootView>
-      );
-    }
   };
 
   const renderOverviewTab = () => {
@@ -481,16 +379,6 @@ export default function StockDetailScreen() {
     );
   };
 
-  const renderChartTab = () => {
-    return (
-      <View>
-        {renderTimeFrameSelector()}
-        {renderChartTypeSelector()}
-        {renderChart()}
-      </View>
-    );
-  };
-
   const renderFinancialsTab = () => {
     return (
       <View className="p-4 items-center justify-center h-64">
@@ -532,7 +420,7 @@ export default function StockDetailScreen() {
   }
 
   return (
-    <View className="flex-1 ">
+    <View className="flex-1  items-center ">
       <LinearGradient
         colors={["#00194b", "#0C0C0C"]}
         start={{ x: 0, y: 0 }}
@@ -562,75 +450,74 @@ export default function StockDetailScreen() {
         </View>
 
         <View className="h-full px-4 ">
+          {/* Stock Price Header */}
+          <View className="flex-row items-center justify-between py-4">
+            <View className="">
+              <Text
+                className="text-2xl text-white"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                {symbol}
+              </Text>
+              {quoteData?.body?.[0]?.longName && (
+                <Text
+                  className="text-lg text-white/80"
+                  style={{
+                    fontFamily: "RubikMedium",
+                  }}
+                >
+                  {quoteData.body[0].longName}
+                </Text>
+              )}
+            </View>
+
+            <View className="">
+              <Text
+                className="text-2xl font-bold text-white"
+                style={{
+                  fontFamily: "RubikBold",
+                }}
+              >
+                $
+                {processedChartData.length > 0
+                  ? processedChartData[
+                      processedChartData.length - 1
+                    ].value.toFixed(2)
+                  : "--"}
+              </Text>
+
+              <View className="flex-row items-center mt-1">
+                <Text
+                  className={`text-lg ${
+                    priceChangeData.isPositive
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                  style={{
+                    fontFamily: "RubikSemiBold",
+                  }}
+                >
+                  {priceChangeData.isPositive ? "+" : ""}
+                  {priceChangeData.change.toFixed(2)}(
+                  {priceChangeData.isPositive ? "+" : ""}
+                  {priceChangeData.percentChange.toFixed(2)}%)
+                </Text>
+              </View>
+            </View>
+          </View>
+
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 400 }}
           >
-            {/* Stock Price Header */}
-            <View className="flex-row items-center justify-between py-4">
-              <View className="">
-                <Text
-                  className="text-2xl text-white"
-                  style={{
-                    fontFamily: "RubikBold",
-                  }}
-                >
-                  {symbol}
-                </Text>
-                {quoteData?.body?.[0]?.longName && (
-                  <Text
-                    className="text-lg text-white/80"
-                    style={{
-                      fontFamily: "RubikMedium",
-                    }}
-                  >
-                    {quoteData.body[0].longName}
-                  </Text>
-                )}
-              </View>
-
-              <View className="">
-                <Text
-                  className="text-2xl font-bold text-white"
-                  style={{
-                    fontFamily: "RubikBold",
-                  }}
-                >
-                  $
-                  {processedChartData.length > 0
-                    ? processedChartData[
-                        processedChartData.length - 1
-                      ].value.toFixed(2)
-                    : "--"}
-                </Text>
-
-                <View className="flex-row items-center mt-1">
-                  <Text
-                    className={`text-lg ${
-                      priceChangeData.isPositive
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                    style={{
-                      fontFamily: "RubikSemiBold",
-                    }}
-                  >
-                    {priceChangeData.isPositive ? "+" : ""}
-                    {priceChangeData.change.toFixed(2)}(
-                    {priceChangeData.isPositive ? "+" : ""}
-                    {priceChangeData.percentChange.toFixed(2)}%)
-                  </Text>
-                </View>
-              </View>
-            </View>
-
             {/* Tab Bar */}
             {renderTabBar()}
 
             {/* Tab Content */}
             {activeTab === 0 && renderOverviewTab()}
-            {activeTab === 1 && renderChartTab()}
-            {activeTab === 2 && renderFinancialsTab()}
+            {activeTab === 1 && renderFinancialsTab()}
           </ScrollView>
         </View>
       </LinearGradient>
@@ -638,7 +525,7 @@ export default function StockDetailScreen() {
       {/* Floating Action Button - Ask AI About This Stock */}
       <Pressable
         onPress={handleAskAI}
-        className="absolute z-[99] bottom-6 right-6 w-14 h-14 bg-blue-600 rounded-full items-center justify-center shadow-lg"
+        className="absolute z-[99] bottom-6  w-[90%] h-14 bg-blue-600 rounded-full items-center justify-center shadow-lg flex-row px-4"
         style={{
           shadowColor: "#000",
           shadowOffset: {
@@ -651,6 +538,14 @@ export default function StockDetailScreen() {
         }}
       >
         <Ionicons name="sparkles" size={24} color="white" />
+        <Text
+          className="text-white ml-2"
+          style={{
+            fontFamily: "RubikMedium",
+          }}
+        >
+          Ask Nudug AI About ${symbol}
+        </Text>
       </Pressable>
     </View>
   );
