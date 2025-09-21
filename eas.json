@@ -41,5 +41,9 @@
       "channel": "android"
     }
   },
-  "submit": {}
+  "submit": {
+    "ios": {
+      "ascAppId": "6752821567"
+    }
+  }
 }
