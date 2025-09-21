@@ -555,19 +555,6 @@ export default function StockDetailScreen() {
           />
         </View>
 
-        <Image
-          style={{
-            flex: 1,
-            width: "100%",
-            height: "100%",
-            borderRadius: 40,
-            backgroundColor: "white",
-          }}
-          source={require("../../assets/images/logo.png")}
-          placeholder={{ blurhash }}
-          contentFit="contain"
-          transition={1000}
-        />
         <Text
           className="text-white ml-2"
           style={{
