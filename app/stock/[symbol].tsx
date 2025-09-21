@@ -420,15 +420,15 @@ export default function StockDetailScreen() {
   }
 
   return (
-    <View className="flex-1  items-center ">
+    <View className="flex-1 items-center ">
+      <StatusBar barStyle="light-content" />
+
       <LinearGradient
         colors={["#00194b", "#0C0C0C"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         className="h-full"
       >
-        <StatusBar barStyle="light-content" />
-
         <View className="pt-16 px-4 flex-row justify-between items-center">
           <Pressable
             className="mx-2 bg-white rounded-full p-1"
@@ -544,7 +544,7 @@ export default function StockDetailScreen() {
             fontFamily: "RubikMedium",
           }}
         >
-          Ask Nudug AI About ${symbol}
+          Ask Sage Ai About ${symbol}
         </Text>
       </Pressable>
     </View>

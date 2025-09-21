@@ -73,7 +73,7 @@ export default function AIChatScreen() {
         className="text-white text-2xl mb-4 text-center"
         style={{ fontFamily: "RubikBold" }}
       >
-        AI Stock Assistant
+        Sage Ai Assistant
       </Text>
 
       <Text

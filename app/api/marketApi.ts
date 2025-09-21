@@ -1,12 +1,27 @@
 import axios from "axios";
+import Constants from "expo-constants";
 
-const API_KEY = "bc336250admsh1a07e581c16fd7ap113b28jsn7a174aa9c47a";
-const API_HOST = "yahoo-finance15.p.rapidapi.com";
+const getApiKey = () => {
+  if (__DEV__ && process.env.EXPO_PUBLIC_FINANCE_API_KEY) {
+    return process.env.EXPO_PUBLIC_FINANCE_API_KEY;
+  }
+  return Constants.expoConfig?.extra?.FINANCE_API_KEY;
+};
+
+const getApiHost = () => {
+  if (__DEV__ && process.env.EXPO_PUBLIC_FINANCE_API_HOST) {
+    return process.env.EXPO_PUBLIC_FINANCE_API_HOST;
+  }
+  return Constants.expoConfig?.extra?.FINANCE_API_HOST;
+};
 
 const baseHeaders = {
-  "x-rapidapi-key": API_KEY,
-  "x-rapidapi-host": API_HOST,
+  "x-rapidapi-key": getApiKey(),
+  "x-rapidapi-host": getApiHost(),
 };
+
+console.log("getApiKey()", getApiKey());
+console.log("getApiHost()", getApiHost());
 
 interface MarketTickerResponse {
   meta: {

@@ -47,6 +47,8 @@ export default {
         projectId: "195652cc-9b87-4bdf-baea-c7be6f9272c7",
       },
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+      FINANCE_API_HOST: process.env.FINANCE_API_HOST,
+      FINANCE_API_KEY: process.env.FINANCE_API_KEY,
       router: {},
     },
     owner: "stackstech",
