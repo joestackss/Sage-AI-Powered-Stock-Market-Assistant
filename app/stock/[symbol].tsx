@@ -22,6 +22,8 @@ import { useWatchlistStore } from "../store/watchlistStore";
 import { useChatStore } from "../store/chatStore";
 import { formatStockForAI } from "../../utils/aiService";
 import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
+import { blurhash } from "../../app/index";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -537,7 +539,35 @@ export default function StockDetailScreen() {
           elevation: 5,
         }}
       >
-        <Ionicons name="sparkles" size={24} color="white" />
+        <View className="w-10 h-10 mr-2 ">
+          <Image
+            style={{
+              flex: 1,
+              width: "100%",
+              height: "100%",
+              borderRadius: 40,
+              backgroundColor: "white",
+            }}
+            source={require("../../assets/images/logo.png")}
+            placeholder={{ blurhash }}
+            contentFit="contain"
+            transition={1000}
+          />
+        </View>
+
+        <Image
+          style={{
+            flex: 1,
+            width: "100%",
+            height: "100%",
+            borderRadius: 40,
+            backgroundColor: "white",
+          }}
+          source={require("../../assets/images/logo.png")}
+          placeholder={{ blurhash }}
+          contentFit="contain"
+          transition={1000}
+        />
         <Text
           className="text-white ml-2"
           style={{

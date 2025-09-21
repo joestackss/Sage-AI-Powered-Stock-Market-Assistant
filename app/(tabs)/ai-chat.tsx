@@ -14,6 +14,8 @@ import { useChatStore } from "../store/chatStore";
 import ChatMessage from "../../components/ChatMessage";
 import ChatInput from "../../components/ChatInput";
 import TypingBubble from "../../components/TypingBubble";
+import { Image } from "expo-image";
+import { blurhash } from "../../app/index";
 
 export default function AIChatScreen() {
   const {
@@ -65,8 +67,20 @@ export default function AIChatScreen() {
 
   const renderEmptyState = () => (
     <View className="flex-1 items-center justify-center px-8">
-      <View className="w-20 h-20 rounded-full bg-blue-600/20 items-center justify-center mb-6">
-        <Ionicons name="sparkles" size={40} color="#2563eb" />
+      <View className="w-20 h-20 mb-4 ">
+        <Image
+          style={{
+            flex: 1,
+            width: "100%",
+            height: "100%",
+            borderRadius: 40,
+            backgroundColor: "white",
+          }}
+          source={require("../../assets/images/logo.png")}
+          placeholder={{ blurhash }}
+          contentFit="contain"
+          transition={1000}
+        />
       </View>
 
       <Text
@@ -153,15 +167,27 @@ export default function AIChatScreen() {
           <View className="pt-16 pb-4 px-4 ">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View className="w-10 h-10 rounded-full bg-blue-600 items-center justify-center mr-3">
-                  <Ionicons name="sparkles" size={20} color="white" />
+                <View className="w-10 h-10 mr-2 ">
+                  <Image
+                    style={{
+                      flex: 1,
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: 40,
+                      backgroundColor: "white",
+                    }}
+                    source={require("../../assets/images/logo.png")}
+                    placeholder={{ blurhash }}
+                    contentFit="contain"
+                    transition={1000}
+                  />
                 </View>
                 <View>
                   <Text
                     className="text-white text-lg"
                     style={{ fontFamily: "RubikBold" }}
                   >
-                    AI Assistant
+                    Sage Ai
                   </Text>
                   {currentContext && (
                     <Text

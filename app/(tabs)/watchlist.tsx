@@ -16,6 +16,8 @@ import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
+import { blurhash } from "../../app/index";
 
 const WatchlistScreen = () => {
   const router = useRouter();
@@ -161,12 +163,26 @@ const WatchlistScreen = () => {
                 onPress={() => handleAnalyzeStock(symbol)}
                 className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex-row items-center justify-center"
               >
-                <Ionicons name="sparkles" size={16} color="#2563eb" />
+                <View className="w-10 h-10 mr-2 ">
+                  <Image
+                    style={{
+                      flex: 1,
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: 40,
+                      backgroundColor: "white",
+                    }}
+                    source={require("../../assets/images/logo.png")}
+                    placeholder={{ blurhash }}
+                    contentFit="contain"
+                    transition={1000}
+                  />
+                </View>
                 <Text
                   className="text-blue-600 text-sm ml-2"
                   style={{ fontFamily: "RubikSemiBold" }}
                 >
-                  Get AI Analysis
+                  Get Sage Ai Analysis
                 </Text>
               </TouchableOpacity>
             </View>
@@ -224,7 +240,21 @@ const WatchlistScreen = () => {
                     onPress={handleAnalyzePortfolio}
                     className="bg-purple-600 rounded-lg px-4 py-3 flex-row items-center justify-center"
                   >
-                    <Ionicons name="sparkles" size={18} color="white" />
+                    <View className="w-10 h-10 mr-2 ">
+                      <Image
+                        style={{
+                          flex: 1,
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: 40,
+                          backgroundColor: "white",
+                        }}
+                        source={require("../../assets/images/logo.png")}
+                        placeholder={{ blurhash }}
+                        contentFit="contain"
+                        transition={1000}
+                      />
+                    </View>
                     <Text
                       className="text-white text-sm ml-2"
                       style={{ fontFamily: "RubikSemiBold" }}

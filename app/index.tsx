@@ -1,6 +1,10 @@
 import { View, Text, ImageBackground, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Image } from "expo-image";
+
+export const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export default function WelcomeScreen() {
   return (
@@ -13,6 +17,21 @@ export default function WelcomeScreen() {
       >
         <View className="absolute inset-0 bg-black/70 " />
         <View className="px-8 items-center justify-end  h-full pb-24">
+          <View className="w-36 h-36 mb-12 ">
+            <Image
+              style={{
+                flex: 1,
+                width: "100%",
+                height: "100%",
+                borderRadius: 40,
+                backgroundColor: "white",
+              }}
+              source={require("../assets/images/logo.png")}
+              placeholder={{ blurhash }}
+              contentFit="contain"
+              transition={1000}
+            />
+          </View>
           <Text
             className="text-4xl text-white mb-4 text-center"
             style={{

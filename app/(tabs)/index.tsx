@@ -16,6 +16,8 @@ import { generateMarketInsight } from "../../utils/aiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import Carousel from "react-native-reanimated-carousel";
+import { Image } from "expo-image";
+import { blurhash } from "../../app/index";
 
 const { width } = Dimensions.get("window");
 
@@ -121,7 +123,7 @@ export default function HomeScreen() {
                   fontFamily: "RubikMedium",
                 }}
               >
-                Good Morning
+                Good {new Date().getHours() < 12 ? "Morning" : "Afternoon"}
               </Text>
               <Text
                 className="text-white text-2xl font-bold"
@@ -129,7 +131,7 @@ export default function HomeScreen() {
                   fontFamily: "RubikBold",
                 }}
               >
-                Derek Shawn
+                Joe Stacks
               </Text>
             </View>
             <View className="w-1/2 items-end">
@@ -147,7 +149,21 @@ export default function HomeScreen() {
                   elevation: 5,
                 }}
               >
-                <Ionicons name="sparkles" size={16} color="white" />
+                <View className="w-10 h-10 ">
+                  <Image
+                    style={{
+                      flex: 1,
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: 40,
+                      backgroundColor: "white",
+                    }}
+                    source={require("../../assets/images/logo.png")}
+                    placeholder={{ blurhash }}
+                    contentFit="contain"
+                    transition={1000}
+                  />
+                </View>
               </Pressable>
             </View>
           </View>

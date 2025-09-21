@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { View, Animated, Easing } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { blurhash } from "../app/index";
 
 export default function TypingBubble() {
   const dot1 = useRef(new Animated.Value(0)).current;
@@ -63,7 +65,19 @@ export default function TypingBubble() {
       <View className="flex-row items-start max-w-[85%]">
         {/* AI Avatar */}
         <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-2 mt-1">
-          <Ionicons name="sparkles" size={16} color="white" />
+          <Image
+            style={{
+              flex: 1,
+              width: "100%",
+              height: "100%",
+              borderRadius: 40,
+              backgroundColor: "white",
+            }}
+            source={require("../assets/images/logo.png")}
+            placeholder={{ blurhash }}
+            contentFit="contain"
+            transition={1000}
+          />
         </View>
 
         {/* Typing Bubble */}

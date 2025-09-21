@@ -102,7 +102,7 @@ export default function ChatInput({
             placeholder={
               currentStock
                 ? `Ask about ${currentStock} or market insights...`
-                : "Ask me about stocks, market trends, or your portfolio..."
+                : "Ask me about stocks, market, or your portfolio..."
             }
             placeholderTextColor="#9ca3af"
             multiline

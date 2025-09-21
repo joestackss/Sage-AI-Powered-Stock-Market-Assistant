@@ -5,6 +5,8 @@ import Markdown from "react-native-markdown-display";
 import TypingMarkdown from "./TypingMarkdown";
 import { ChatMessage as ChatMessageType } from "../types/chat";
 import { formatDistanceToNow } from "date-fns";
+import { Image } from "expo-image";
+import { blurhash } from "../app/index";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -30,7 +32,19 @@ export default function ChatMessage({
         {/* AI Avatar */}
         {isAssistant && (
           <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center mr-2 mt-1">
-            <Ionicons name="sparkles" size={16} color="white" />
+            <Image
+              style={{
+                flex: 1,
+                width: "100%",
+                height: "100%",
+                borderRadius: 40,
+                backgroundColor: "white",
+              }}
+              source={require("../assets/images/logo.png")}
+              placeholder={{ blurhash }}
+              contentFit="contain"
+              transition={1000}
+            />
           </View>
         )}
 
