@@ -258,7 +258,7 @@ export default function HomeScreen() {
             </View>
 
             {/* Quick AI Actions */}
-            <View className="my-8">
+            <View className="my-4">
               <Text
                 className="text-white text-lg mb-4"
                 style={{
@@ -320,7 +320,7 @@ export default function HomeScreen() {
             </View>
 
             {/* News section */}
-            <View className="my-8">
+            <View className="my-4">
               <View className="flex-row justify-between items-center mb-2">
                 <Text
                   className="text-white text-lg"
@@ -391,38 +391,8 @@ export default function HomeScreen() {
               )}
             </View>
 
-            {/* Market Type Segments */}
-            <View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                className="mb-4"
-              >
-                {marketTypes.map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    onPress={() => setSelectedMarket(type)}
-                    className={`px-4 py-2 mr-2 rounded-full ${
-                      selectedMarket === type ? "bg-white/20" : "bg-white/10"
-                    }`}
-                  >
-                    <Text
-                      className="text-white"
-                      style={{
-                        fontFamily: `${
-                          selectedMarket === type ? "RubikBold" : "RubikMedium"
-                        }`,
-                      }}
-                    >
-                      {type}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-
             {/* Indices Section */}
-            <View>
+            <View className="mt-4">
               <Text
                 className="text-white text-lg mb-2"
                 style={{
@@ -431,6 +401,38 @@ export default function HomeScreen() {
               >
                 Indices
               </Text>
+
+              {/* Market Type Segments */}
+              <View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="mb-4"
+                >
+                  {marketTypes.map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => setSelectedMarket(type)}
+                      className={`px-4 py-2 mr-2 rounded-full ${
+                        selectedMarket === type ? "bg-white/20" : "bg-white/10"
+                      }`}
+                    >
+                      <Text
+                        className="text-white"
+                        style={{
+                          fontFamily: `${
+                            selectedMarket === type
+                              ? "RubikBold"
+                              : "RubikMedium"
+                          }`,
+                        }}
+                      >
+                        {type}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
               {isLoadingMarket ? (
                 <View className="h-32 justify-center items-center bg-white/10 rounded-lg">
                   <ActivityIndicator size="small" color="white" />

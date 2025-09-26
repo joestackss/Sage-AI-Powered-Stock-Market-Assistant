@@ -28,7 +28,7 @@ const WatchlistScreen = () => {
     queryKey: ["watchlist-quotes", stocks],
     queryFn: () => fetchStockQuotes(stocks),
     enabled: stocks.length > 0,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    // refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   const handleAnalyzeStock = (symbol: string) => {
