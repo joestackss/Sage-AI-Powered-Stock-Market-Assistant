@@ -16,7 +16,7 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "apk"
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -36,7 +36,7 @@
     "android": {
       "extends": "development",
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "apk"
       },
       "channel": "android"
     }
