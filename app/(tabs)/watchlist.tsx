@@ -75,16 +75,19 @@ const WatchlistScreen = () => {
     const isPositive = change >= 0;
     const isPreMarket = quote?.marketState === "PRE";
     const isPostMarket = quote?.marketState === "POST";
+
     const currentPrice = isPreMarket
       ? quote?.preMarketPrice
       : isPostMarket
       ? quote?.postMarketPrice
       : quote?.regularMarketPrice;
+
     const currentChange = isPreMarket
       ? quote?.preMarketChange
       : isPostMarket
       ? quote?.postMarketChange
       : quote?.regularMarketChange;
+
     const currentChangePercent = isPreMarket
       ? quote?.preMarketChangePercent
       : isPostMarket
@@ -136,6 +139,7 @@ const WatchlistScreen = () => {
                 >
                   ${currentPrice?.toFixed(2) || "0.00"}
                 </Text>
+
                 <Text
                   className={`text-sm ${
                     isPositive ? "text-green-500" : "text-red-500"
@@ -203,10 +207,10 @@ const WatchlistScreen = () => {
         <View className="h-full pt-16 px-4">
           {stocks.length === 0 ? (
             <View className="flex-1 justify-center items-center p-4">
-              <Text className="text-lg font-bold mb-2">
+              <Text className="text-lg font-bold mb-2 text-white">
                 Your watchlist is empty
               </Text>
-              <Text className="text-sm text-gray-600 text-center">
+              <Text className="text-sm text-white text-center">
                 Add stocks to your watchlist to track them here
               </Text>
             </View>

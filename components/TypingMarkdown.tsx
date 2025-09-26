@@ -20,7 +20,9 @@ export default function TypingMarkdown({
   const [displayedText, setDisplayedText] = useState(
     isAlreadyCompleted ? text : ""
   );
+
   const [isCompleted, setIsCompleted] = useState(isAlreadyCompleted);
+
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );

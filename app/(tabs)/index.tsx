@@ -10,22 +10,24 @@ import {
   Pressable,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Stack, useRouter } from "expo-router";
-import { fetchMarketTickers } from "../api/marketApi";
-import { generateMarketInsight } from "../../utils/aiService";
+import { Link, useRouter } from "expo-router";
+import { fetchMarketNews, fetchMarketTickers } from "../api/marketApi";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import Carousel from "react-native-reanimated-carousel";
 import { Image } from "expo-image";
 import { blurhash } from "../../app/index";
+import { formatNewsTime } from "../../utils/helpers";
 
 const { width } = Dimensions.get("window");
 
 const chunkArray = (array: any[], size: number) => {
   const chunks = [];
+
   for (let i = 0; i < array.length; i += size) {
     chunks.push(array.slice(i, i + size));
   }
+
   return chunks;
 };
 
@@ -74,7 +76,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const [selectedMarket, setSelectedMarket] = useState<MarketType>("STOCKS");
 
-  // Query for recent stocks (always STOCKS)
+  // Query for stocks (always STOCKS)
   const { data: recentStocksData, isPending: isLoadingRecentStocks } = useQuery(
     {
       queryKey: ["recentStocks"],
@@ -101,6 +103,11 @@ export default function HomeScreen() {
     },
   });
 
+  const { data: newsData, isPending: isLoadingNews } = useQuery({
+    queryKey: ["market-news"],
+    queryFn: () => fetchMarketNews(),
+  });
+
   const marketTypes: MarketType[] = ["STOCKS", "ETF", "MUTUALFUNDS", "FUTURES"];
 
   return (
@@ -114,7 +121,7 @@ export default function HomeScreen() {
         className="h-full"
       >
         <View className="h-full p-4 pt-16">
-          {/* Market Type Segments */}
+          {/* Header */}
           <View className="flex-row justify-between items-center">
             <View className="w-1/2">
               <Text
@@ -137,7 +144,7 @@ export default function HomeScreen() {
             <View className="w-1/2 items-end">
               <Pressable
                 onPress={() => router.push("/(tabs)/ai-chat")}
-                className="w-12 h-12 bg-blue-600 rounded-full items-center justify-center shadow-lg flex-row px-4"
+                className="w-12 h-12 bg-white rounded-full items-center justify-center shadow-lg flex-row "
                 style={{
                   shadowColor: "#000",
                   shadowOffset: {
@@ -149,21 +156,17 @@ export default function HomeScreen() {
                   elevation: 5,
                 }}
               >
-                <View className="w-10 h-10 ">
-                  <Image
-                    style={{
-                      flex: 1,
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: 40,
-                      backgroundColor: "white",
-                    }}
-                    source={require("../../assets/images/logo.png")}
-                    placeholder={{ blurhash }}
-                    contentFit="contain"
-                    transition={1000}
-                  />
-                </View>
+                <Image
+                  style={{
+                    flex: 1,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  source={require("../../assets/images/logo.png")}
+                  placeholder={{ blurhash }}
+                  contentFit="cover"
+                  transition={1000}
+                />
               </Pressable>
             </View>
           </View>
@@ -220,6 +223,7 @@ export default function HomeScreen() {
                                     {stock.symbol.charAt(0)}
                                   </Text>
                                 </View>
+
                                 <View>
                                   <Text
                                     className="text-white text-lg"
@@ -315,6 +319,78 @@ export default function HomeScreen() {
               </View>
             </View>
 
+            {/* News section */}
+            <View className="my-8">
+              <View className="flex-row justify-between items-center mb-2">
+                <Text
+                  className="text-white text-lg"
+                  style={{
+                    fontFamily: "RubikBold",
+                  }}
+                >
+                  Latest News
+                </Text>
+                <Link href="/news" asChild>
+                  <TouchableOpacity className="flex-row items-center">
+                    <Text
+                      className="text-white mr-1"
+                      style={{
+                        fontFamily: "RubikMedium",
+                      }}
+                    >
+                      View All
+                    </Text>
+                    <Ionicons name="arrow-forward" size={16} color="white" />
+                  </TouchableOpacity>
+                </Link>
+              </View>
+              {isLoadingNews ? (
+                <View className="h-32 justify-center items-center bg-white/10 rounded-lg">
+                  <ActivityIndicator size="small" color="white" />
+                </View>
+              ) : (
+                newsData?.body[0] && (
+                  <View className="bg-white/10 rounded-lg p-4">
+                    <Text
+                      className="text-white text-lg mb-2"
+                      style={{
+                        fontFamily: "RubikSemiBold",
+                      }}
+                    >
+                      {newsData.body[0].title}
+                    </Text>
+                    <Text
+                      className="text-white/80 mb-2"
+                      numberOfLines={2}
+                      style={{
+                        fontFamily: "RubikMedium",
+                      }}
+                    >
+                      {newsData.body[0].text}
+                    </Text>
+                    <View className="flex-row justify-between items-center">
+                      <Text
+                        className="text-white/60 text-sm"
+                        style={{
+                          fontFamily: "RubikBold",
+                        }}
+                      >
+                        {newsData.body[0].source}
+                      </Text>
+                      <Text
+                        className="text-white/60 text-sm"
+                        style={{
+                          fontFamily: "RubikBold",
+                        }}
+                      >
+                        {formatNewsTime(newsData.body[0].time)}
+                      </Text>
+                    </View>
+                  </View>
+                )
+              )}
+            </View>
+
             {/* Market Type Segments */}
             <View>
               <ScrollView
@@ -370,6 +446,7 @@ export default function HomeScreen() {
                     <View className="gap-2 w-[98%]">
                       {chunk.map((item: any) => {
                         const isPositive = !item.netchange.startsWith("-");
+
                         return (
                           <TouchableOpacity
                             key={item.symbol}
@@ -388,6 +465,7 @@ export default function HomeScreen() {
                                     {item.symbol.charAt(0)}
                                   </Text>
                                 </View>
+
                                 <View className="flex-row w-[90%] justify-between">
                                   <View className=" w-[70%]">
                                     <Text

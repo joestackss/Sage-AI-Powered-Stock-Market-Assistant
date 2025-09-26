@@ -1,9 +1,6 @@
 import { create } from "zustand";
 import { ChatMessage, ChatStore } from "../../types/chat";
-import {
-  sendAIRequest,
-  generateOfflineStockAnalysis,
-} from "../../utils/aiService";
+import { sendAIRequest } from "../../utils/aiService";
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],

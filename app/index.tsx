@@ -16,6 +16,7 @@ export default function WelcomeScreen() {
         resizeMode="cover"
       >
         <View className="absolute inset-0 bg-black/70 " />
+
         <View className="px-8 items-center justify-end  h-full pb-24">
           <View className="w-36 h-36 mb-12 ">
             <Image
@@ -32,6 +33,7 @@ export default function WelcomeScreen() {
               transition={1000}
             />
           </View>
+
           <Text
             className="text-4xl text-white mb-4 text-center"
             style={{
@@ -40,6 +42,7 @@ export default function WelcomeScreen() {
           >
             Sage Ai
           </Text>
+
           <Text
             className="text-lg text-white mb-8 text-center"
             style={{

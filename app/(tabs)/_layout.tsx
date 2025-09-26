@@ -41,6 +41,24 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="news"
+        options={{
+          tabBarLabel: "News",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="newspaper" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          tabBarLabel: "Search",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

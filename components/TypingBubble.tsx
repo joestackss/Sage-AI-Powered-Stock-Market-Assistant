@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { View, Animated, Easing } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { blurhash } from "../app/index";
 

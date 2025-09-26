@@ -1,18 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   ActivityIndicator,
   Pressable,
-  Dimensions,
   StatusBar,
 } from "react-native";
-import { useLocalSearchParams, Stack, router } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
-import { LineChart, CandlestickChart } from "react-native-wagmi-charts";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   fetchStockHistory,
   fetchStockModule,
@@ -24,8 +21,6 @@ import { formatStockForAI } from "../../utils/aiService";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { blurhash } from "../../app/index";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // Chart time frame options
 const timeFrames = [
@@ -50,7 +45,7 @@ export default function StockDetailScreen() {
   const isWatched = isInWatchlist(symbol);
 
   // Fetch stock quote data
-  const { data: quoteData, isPending: isQuoteLoading } = useQuery({
+  const { data: quoteData } = useQuery({
     queryKey: ["stockQuote", symbol],
     queryFn: () => fetchStockQuotes([symbol as string]),
     enabled: !!symbol,

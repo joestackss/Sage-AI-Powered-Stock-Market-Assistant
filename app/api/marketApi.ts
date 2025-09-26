@@ -19,10 +19,6 @@ const baseHeaders = {
   "x-rapidapi-key": getApiKey(),
   "x-rapidapi-host": getApiHost(),
 };
-
-console.log("getApiKey()", getApiKey());
-console.log("getApiHost()", getApiHost());
-
 interface MarketTickerResponse {
   meta: {
     version: string;

@@ -67,9 +67,12 @@ Current Stock Context:
 - Current Price: $${stockContext.currentPrice}
 - Change: ${stockContext.change > 0 ? "+" : ""}${stockContext.change.toFixed(
         2
-      )} (${
-        stockContext.percentChange > 0 ? "+" : ""
-      }${stockContext.percentChange.toFixed(2)}%)
+      )} 
+      
+      (${stockContext.percentChange > 0 ? "+" : ""}
+      ${stockContext.percentChange.toFixed(2)}%)
+
+      
 - Company: ${stockContext.companyName || "N/A"}
 - Sector: ${stockContext.sector || "N/A"}
 - Industry: ${stockContext.industry || "N/A"}
