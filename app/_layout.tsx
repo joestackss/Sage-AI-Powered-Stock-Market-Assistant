@@ -50,6 +50,7 @@ export default function RootLayout() {
   if (!loaded) {
     return null;
   }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>

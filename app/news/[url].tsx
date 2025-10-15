@@ -1,7 +1,7 @@
 import React from "react";
-import { View, ActivityIndicator, Linking } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import { WebView } from "react-native-webview";
-import { useLocalSearchParams, Stack, router } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
